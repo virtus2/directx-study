@@ -1,0 +1,2 @@
+# directx-study
+ personal study
