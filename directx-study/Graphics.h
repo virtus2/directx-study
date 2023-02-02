@@ -2,7 +2,10 @@
 #define  _GRAPHICS_H_
 
 #include <windows.h>
-
+#include "D3DClass.h"
+//
+// Globals
+//
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.f;
@@ -23,7 +26,7 @@ private:
 	bool Render();
 
 private:
-
+	D3DClass* direct3D;
 };
 
 #endif
