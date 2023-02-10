@@ -30,7 +30,7 @@ public:
 	void GetWorldMatrix(XMMATRIX&);
 	void GetOrthoMatrix(XMMATRIX&);
 
-	void GetVideoCardInfo(char*, int&);
+	void GetVideoCardInfo(char* cardName, int& memory);
 
 private:
 	bool vsyncEnabled;
@@ -46,6 +46,6 @@ private:
 	ID3D11RasterizerState* rasterState;
 	XMMATRIX projectionMatrix;
 	XMMATRIX worldMatrix;
-	XMMATRIX orthoMatrx;
+	XMMATRIX orthoMatrix;
 };
 #endif

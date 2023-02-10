@@ -26,6 +26,10 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
 		return false;
 	}
+	char* videoCardName = new char[100];
+	int videoCardMemory = 0;
+	direct3D->GetVideoCardInfo(videoCardName, videoCardMemory);
+
 	return true;
 }
 
@@ -53,7 +57,7 @@ bool Graphics::Frame()
 bool Graphics::Render()
 {
 	// Clear the buffers to begin the scene.
-	direct3D->BeginScene(0.5f, 0.5f, 0.5f, 1.0f);
+	direct3D->BeginScene(1.f, 1.f, 0.f, 1.0f);
 	// Present the rendered scene to the screen.
 	direct3D->EndScene();
 	return true;
