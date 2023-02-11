@@ -45,6 +45,9 @@
     <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LightShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -85,6 +88,9 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LightShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.vs">
@@ -97,6 +103,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Texture.ps">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Light.ps">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

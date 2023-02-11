@@ -132,6 +132,7 @@
     <ClInclude Include="D3DClass.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="LightShader.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="targetver.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="D3DClass.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="SystemClass.cpp" />
@@ -160,6 +162,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
     </None>
+    <None Include="Light.ps" />
+    <None Include="Light.vs" />
     <None Include="Texture.ps" />
     <None Include="Texture.vs" />
   </ItemGroup>
