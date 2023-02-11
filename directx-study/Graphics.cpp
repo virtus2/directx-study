@@ -5,7 +5,8 @@ Graphics::Graphics()
 	direct3D = 0;
 	camera = 0;
 	model = 0;
-	colorShader = 0;
+	// colorShader = 0;
+	textureShader = 0;
 }
 
 Graphics::Graphics(const Graphics&)
@@ -20,6 +21,7 @@ Graphics::~Graphics()
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
+	char textureFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
 
@@ -37,14 +39,24 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
 
 	// Create and initialize the model object.
+	strcpy_s(textureFilename, "stone01.tga");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice());
+	result = model->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), textureFilename);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
+	textureShader = new TextureShader;
+	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	/*
 	// Create and initialize the color shader object.
 	colorShader = new ColorShader;
 	result = colorShader->Initialize(direct3D->GetDevice(), hwnd);
@@ -55,16 +67,25 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	return true;
+	*/
 }
 
 void Graphics::Shutdown()
 {
+	if(textureShader)
+	{
+		textureShader->Shutdown();
+		delete textureShader;
+		textureShader = 0;
+	}
+	/*
 	if(colorShader)
 	{
 		colorShader->Shutdown();
 		delete colorShader;
 		colorShader = 0;
 	}
+	*/
 	if (model)
 	{
 		model->Shutdown();
@@ -113,12 +134,18 @@ bool Graphics::Render()
 
 	model->Render(direct3D->GetDeviceContext());
 
+	result = textureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture());
+	if(!result)
+	{
+		return false;
+	}
+	/*
 	result = colorShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if(!result)
 	{
 		return false;
 	}
-
+	*/
 	// Present the rendered scene to the screen.
 	direct3D->EndScene();
 	return true;

@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Model.h"
 #include "ColorShader.h"
+#include "TextureShader.h"
 //
 // Globals
 //
@@ -32,7 +33,8 @@ private:
 	D3DClass* direct3D;
 	Camera* camera;
 	Model* model;
-	ColorShader* colorShader;
+	// ColorShader* colorShader;
+	TextureShader* textureShader;
 };
 
 #endif
