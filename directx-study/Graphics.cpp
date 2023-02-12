@@ -24,6 +24,7 @@ Graphics::~Graphics()
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
+	char modelFilename[128];
 	char textureFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
@@ -42,9 +43,10 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
 
 	// Create and initialize the model object.
+	strcpy_s(modelFilename, "cube.txt");
 	strcpy_s(textureFilename, "stone01.tga");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), textureFilename);
+	result = model->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), modelFilename, textureFilename);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
@@ -56,7 +58,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	{
 		return false;
 	}
-	light->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
+	light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	light->SetDirection(0.0f, 0.0f, 1.0f);
 
 	lightShader = new LightShader;
