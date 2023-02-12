@@ -5,8 +5,11 @@ Graphics::Graphics()
 	direct3D = 0;
 	camera = 0;
 	model = 0;
+	light = 0;
+	lightShader = 0;
 	// colorShader = 0;
-	textureShader = 0;
+	// textureShader = 0;
+
 }
 
 Graphics::Graphics(const Graphics&)
@@ -48,6 +51,23 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	light = new Light;
+	if(!light)
+	{
+		return false;
+	}
+	light->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
+	light->SetDirection(0.0f, 0.0f, 1.0f);
+
+	lightShader = new LightShader;
+	result = lightShader->Initialize(direct3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	/*
 	textureShader = new TextureShader;
 	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
 	if(!result)
@@ -55,6 +75,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
 		return false;
 	}
+	*/
 
 	/*
 	// Create and initialize the color shader object.
@@ -72,11 +93,11 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
-	if(textureShader)
+	if(lightShader)
 	{
-		textureShader->Shutdown();
-		delete textureShader;
-		textureShader = 0;
+		lightShader->Shutdown();
+		delete lightShader;
+		lightShader = 0;
 	}
 	/*
 	if(colorShader)
@@ -86,6 +107,11 @@ void Graphics::Shutdown()
 		colorShader = 0;
 	}
 	*/
+	if(light)
+	{
+		delete light;
+		light = 0;
+	}
 	if (model)
 	{
 		model->Shutdown();
@@ -108,7 +134,16 @@ void Graphics::Shutdown()
 bool Graphics::Frame()
 {
 	bool result = false;
-	result = Render();
+	static float rotation = 0.0f;
+
+	// Update the rotation variable each frame.
+	rotation += (float)XM_PI * 0.005f;
+	if (rotation > 360.0f)
+	{
+		rotation -= 360.0f;
+	}
+
+	result = Render(rotation);
 	if(!result)
 	{
 		return false;
@@ -116,7 +151,7 @@ bool Graphics::Frame()
 	return true;
 }
 
-bool Graphics::Render()
+bool Graphics::Render(float rotation)
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
@@ -128,17 +163,31 @@ bool Graphics::Render()
 	camera->Render();
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
-	direct3D->GetWorldMatrix(worldMatrix);
 	camera->GetViewMatrix(viewMatrix);
+	direct3D->GetWorldMatrix(worldMatrix);
 	direct3D->GetProjectionMatrix(projectionMatrix);
 
+	// Rotate the world matrix by the rotation value so that the triangle will spin.
+	worldMatrix = XMMatrixRotationY(rotation);
+
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	model->Render(direct3D->GetDeviceContext());
 
+	// Render the model using the light shader.
+	result = lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model->GetTexture(), light->GetDirection(), light->GetDiffuseColor());
+	if (!result)
+	{
+		return false;
+	}
+	/*
 	result = textureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture());
 	if(!result)
 	{
 		return false;
 	}
+	*/
+
 	/*
 	result = colorShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if(!result)

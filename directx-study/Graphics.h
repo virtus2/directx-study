@@ -7,6 +7,8 @@
 #include "Model.h"
 #include "ColorShader.h"
 #include "TextureShader.h"
+#include "LightShader.h"
+#include "Light.h"
 //
 // Globals
 //
@@ -27,14 +29,16 @@ public:
 	bool Frame();
 
 private:
-	bool Render();
+	bool Render(float);
 
 private:
 	D3DClass* direct3D;
 	Camera* camera;
 	Model* model;
+	Light* light;
 	// ColorShader* colorShader;
-	TextureShader* textureShader;
+	// TextureShader* textureShader;
+	LightShader* lightShader;
 };
 
 #endif
