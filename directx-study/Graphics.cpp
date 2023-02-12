@@ -26,6 +26,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	char modelFilename[128];
 	char textureFilename[128];
+	char fbxFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
 
@@ -41,6 +42,22 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Set the initial position of the camera.
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
+
+	fbxConverter = new FbxConverter;
+	result = fbxConverter->Initialize();
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize FBX SDK", L"Error", MB_OK);
+		return false;
+	}
+
+	strcpy_s(fbxFilename, "/data/XBot.fbx");
+	result = fbxConverter->LoadFBX(fbxFilename);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not load FBX file", L"Error", MB_OK);
+		return false;
+	}
 
 	// Create and initialize the model object.
 	strcpy_s(modelFilename, "cube.txt");
