@@ -26,7 +26,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	char modelFilename[128];
 	char textureFilename[128];
-	char fbxFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
 
@@ -43,16 +42,18 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Set the initial position of the camera.
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
 
-	fbxConverter = new FbxConverter;
-	result = fbxConverter->Initialize();
+	fbxLoader = new FbxLoader;
+	result = fbxLoader->Initialize();
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize FBX SDK", L"Error", MB_OK);
 		return false;
 	}
 
-	strcpy_s(fbxFilename, "/data/XBot.fbx");
-	result = fbxConverter->LoadFBX(fbxFilename);
+	std::string fbxFilename("/data/Xbot.fbx");
+	std::vector<FbxLoader::Vertex> vertexVector;
+	std::vector<uint32_t> indexVector;
+	result = fbxLoader->LoadFBX(vertexVector, indexVector, fbxFilename);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not load FBX file", L"Error", MB_OK);
@@ -70,6 +71,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	
 	light = new Light;
 	if(!light)
 	{
@@ -85,6 +87,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
 		return false;
 	}
+	
 
 	/*
 	textureShader = new TextureShader;
@@ -191,7 +194,7 @@ bool Graphics::Render(float rotation)
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	model->Render(direct3D->GetDeviceContext());
-
+	
 	// Render the model using the light shader.
 	result = lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model->GetTexture(), light->GetDirection(), light->GetDiffuseColor());
@@ -199,6 +202,7 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
+
 	/*
 	result = textureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture());
 	if(!result)
@@ -213,10 +217,10 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
-	*/
 	// Present the rendered scene to the screen.
 	direct3D->EndScene();
 	return true;
+	*/
 }
 
 
