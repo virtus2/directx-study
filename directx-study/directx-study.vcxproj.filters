@@ -51,7 +51,7 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FbxLoader.h">
+    <ClInclude Include="FbxConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -100,7 +100,7 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FbxLoader.cpp">
+    <ClCompile Include="FbxConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

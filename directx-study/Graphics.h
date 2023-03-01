@@ -3,7 +3,7 @@
 
 #include <windows.h>
 #include "D3DClass.h"
-#include "FbxLoader.h"
+#include "FbxConverter.h"
 #include "Camera.h"
 #include "Model.h"
 #include "ColorShader.h"
@@ -33,14 +33,14 @@ private:
 	bool Render(float);
 
 private:
-	FbxLoader* fbxLoader;
+	FbxConverter* fbxConverter;
 	D3DClass* direct3D;
 	Camera* camera;
 	Model* model;
 	Light* light;
 
-	ColorShader* colorShader;
-	TextureShader* textureShader;
+	// ColorShader* colorShader;
+	// TextureShader* textureShader;
 	LightShader* lightShader;
 };
 
