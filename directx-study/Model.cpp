@@ -1,5 +1,4 @@
 #include "Model.h"
-#include "FbxConverter.h"
 
 Model::Model()
 {
@@ -34,7 +33,6 @@ bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
 	texture = new Texture;
 	result = texture->Initialize(device, deviceContext, filename);
-
 	if(!result)
 	{
 		return false;
@@ -133,7 +131,6 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 	{
 		return false;
 	}
-
 
 	result = LoadTexture(device, deviceContext, textureFilename);
 	if(!result)
@@ -276,4 +273,6 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	return;
 }

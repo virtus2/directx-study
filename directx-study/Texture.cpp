@@ -102,6 +102,8 @@ void Texture::Shutdown()
 		delete[] targaData;
 		targaData = 0;
 	}
+
+	return;
 }
 
 ID3D11ShaderResourceView* Texture::GetTexture()
