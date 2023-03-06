@@ -58,8 +58,11 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	{
 		return false;
 	}
+	light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	light->SetDirection(0.0f, 0.0f, 1.0f);
+	light->SetDirection(1.0f, 0.0f, 1.0f);
+	light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	light->SetSpecularPower(32.0f);
 
 	lightShader = new LightShader;
 	result = lightShader->Initialize(direct3D->GetDevice(), hwnd);
@@ -177,7 +180,8 @@ bool Graphics::Render(float rotation)
 
 	// Render the model using the light shader.
 	result = lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model->GetTexture(), light->GetDirection(), light->GetDiffuseColor());
+		model->GetTexture(), light->GetDirection(), light->GetAmbientColor(), light->GetDiffuseColor(), camera->GetPosition(),
+		light->GetSpecularColor(), light->GetSpecularPower());
 	if (!result)
 	{
 		return false;
