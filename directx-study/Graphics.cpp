@@ -7,8 +7,9 @@ Graphics::Graphics()
 	model = 0;
 	light = 0;
 	lightShader = 0;
+	bitmap = 0;
 	// colorShader = 0;
-	// textureShader = 0;
+	textureShader = 0;
 
 }
 
@@ -26,6 +27,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	char modelFilename[128];
 	char textureFilename[128];
+	char bitmapFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
 
@@ -72,7 +74,22 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	/*
+	// Create the bitmap object.
+	bitmap = new Bitmap;
+	if (!bitmap)
+	{
+		return false;
+	}
+
+	// Initialize the bitmap object.
+	strcpy_s(bitmapFilename, "stone01.tga");
+	result = bitmap->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename, 256, 256);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+	
 	textureShader = new TextureShader;
 	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
 	if(!result)
@@ -80,7 +97,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
 		return false;
 	}
-	*/
 
 	/*
 	// Create and initialize the color shader object.
@@ -98,6 +114,14 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	// Release the bitmap object.
+	if (bitmap)
+	{
+		bitmap->Shutdown();
+		delete bitmap;
+		bitmap = 0;
+	}
+
 	if(lightShader)
 	{
 		lightShader->Shutdown();
@@ -158,7 +182,7 @@ bool Graphics::Frame()
 
 bool Graphics::Render(float rotation)
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	bool result;
 
 	// Clear the buffers to begin the scene.
@@ -171,6 +195,26 @@ bool Graphics::Render(float rotation)
 	camera->GetViewMatrix(viewMatrix);
 	direct3D->GetWorldMatrix(worldMatrix);
 	direct3D->GetProjectionMatrix(projectionMatrix);
+	direct3D->GetOrthoMatrix(orthoMatrix);
+
+	direct3D->TurnZBufferOff();
+
+	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	result = bitmap->Render(direct3D->GetDeviceContext(), 100, 100);
+	if(!result)
+	{
+		return false;
+	}
+
+	// Render the bitmap with the texture shader.
+	result = textureShader->Render(direct3D->GetDeviceContext(), bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap->GetTexture());
+	if(!result)
+	{
+		return false;
+	}
+
+	// Turn the Z buffer back on now that all 2D rendering has completed.
+	direct3D->TurnZBufferOn();
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	worldMatrix = XMMatrixRotationY(rotation);

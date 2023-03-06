@@ -7,8 +7,10 @@
 #include "Model.h"
 #include "ColorShader.h"
 #include "TextureShader.h"
+#include "Bitmap.h"
 #include "LightShader.h"
 #include "Light.h"
+
 //
 // Globals
 //
@@ -37,8 +39,9 @@ private:
 	Model* model;
 	Light* light;
 	// ColorShader* colorShader;
-	// TextureShader* textureShader;
+	TextureShader* textureShader;
 	LightShader* lightShader;
+	Bitmap* bitmap;
 };
 
 #endif
