@@ -10,7 +10,7 @@
 #include "Bitmap.h"
 #include "LightShader.h"
 #include "Light.h"
-
+#include "Text.h"
 //
 // Globals
 //
@@ -42,6 +42,7 @@ private:
 	TextureShader* textureShader;
 	LightShader* lightShader;
 	Bitmap* bitmap;
+	Text* text;
 };
 
 #endif

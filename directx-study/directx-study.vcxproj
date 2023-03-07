@@ -137,6 +137,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorShader.h" />
     <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="FontShader.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
@@ -144,6 +146,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureShader.h" />
   </ItemGroup>
@@ -156,6 +159,8 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColorShader.cpp" />
     <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FontShader.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -163,6 +168,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="SystemClass.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureShader.cpp" />
   </ItemGroup>
@@ -172,6 +178,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
     </None>
+    <None Include="Font.ps" />
+    <None Include="Font.vs" />
     <None Include="Light.ps" />
     <None Include="Light.vs" />
     <None Include="Texture.ps" />

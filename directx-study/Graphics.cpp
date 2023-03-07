@@ -10,6 +10,7 @@ Graphics::Graphics()
 	bitmap = 0;
 	// colorShader = 0;
 	textureShader = 0;
+	text = 0;
 
 }
 
@@ -30,6 +31,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	char bitmapFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
+	XMMATRIX baseViewMatrix;
 
 	result = direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if(!result)
@@ -40,6 +42,15 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Create the camera object.
 	camera = new Camera;
+	if(!camera)
+	{
+		return false;
+	}
+
+	// Initialize a base view matrix with the camera for 2D user interface rendering.
+	camera->SetPosition(0.0f, 0.0f, -1.0f);
+	camera->Render();
+	camera->GetViewMatrix(baseViewMatrix);
 
 	// Set the initial position of the camera.
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
@@ -98,6 +109,20 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the text object.
+	text = new Text;
+	if (!text)
+	{
+		return false;
+	}
+
+	// Initialize the text object.
+	result = text->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
+		return false;
+	}
 	/*
 	// Create and initialize the color shader object.
 	colorShader = new ColorShader;
@@ -120,6 +145,13 @@ void Graphics::Shutdown()
 		bitmap->Shutdown();
 		delete bitmap;
 		bitmap = 0;
+	}
+	// Release the text object.
+	if (text)
+	{
+		text->Shutdown();
+		delete text;
+		text = 0;
 	}
 
 	if(lightShader)
@@ -197,8 +229,18 @@ bool Graphics::Render(float rotation)
 	direct3D->GetProjectionMatrix(projectionMatrix);
 	direct3D->GetOrthoMatrix(orthoMatrix);
 
+	// Turn off the Z buffer to begin all 2D rendering.
 	direct3D->TurnZBufferOff();
 
+	// Turn on the alpha blending before rendering the text.
+	direct3D->TurnOnAlphaBlending();
+
+	// Render the text strings.
+	result = text->Render(direct3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	if (!result)
+	{
+		return false;
+	}
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	result = bitmap->Render(direct3D->GetDeviceContext(), 100, 100);
 	if(!result)
@@ -212,9 +254,6 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
-
-	// Turn the Z buffer back on now that all 2D rendering has completed.
-	direct3D->TurnZBufferOn();
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	worldMatrix = XMMatrixRotationY(rotation);
@@ -246,6 +285,13 @@ bool Graphics::Render(float rotation)
 	}
 	*/
 	// Present the rendered scene to the screen.
+
+	// Turn off alpha blending after rendering the text.
+	direct3D->TurnOffAlphaBlending();
+
+	// Turn the Z buffer back on now that all 2D rendering has completed.
+	direct3D->TurnZBufferOn();
+
 	direct3D->EndScene();
 	return true;
 }
