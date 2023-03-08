@@ -5,8 +5,10 @@
 //////////////
 // INCLUDES //
 //////////////
+#pragma comment(lib, "DirectXTK.lib")
 #include <d3d11.h>
 #include <stdio.h>
+#include <DDSTextureLoader.h>
 
 class Texture
 {
