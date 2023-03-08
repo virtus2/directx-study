@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include "Utility.h"
+
 Texture::Texture()
 {
 	targaData = 0;
@@ -19,13 +21,19 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 {
 	bool result;
 	int height, width;
-	D3D11_TEXTURE2D_DESC textureDesc;
+	// D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT hResult;
 	unsigned int rowPitch;
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	// D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
-		
+	wchar_t* wcstr = Utility::CharToWChar(filename);
+	result = CreateDDSTextureFromFile(device, wcstr, &texture, &textureView);
+	if(!result)
+	{
+		return false;
+	}
 
+	/*
 	// Load the targa image data into memory.
 	result = LoadTarga(filename, height, width);
 	if (!result)
@@ -80,6 +88,7 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	targaData = 0;
 
 	return true;
+	*/
 }
 
 void Texture::Shutdown()

@@ -9,7 +9,7 @@
 #include <d3d11.h>
 #include <stdio.h>
 #include <DDSTextureLoader.h>
-
+using namespace DirectX;
 class Texture
 {
 private:
@@ -37,8 +37,9 @@ private:
 
 private:
 	unsigned char* targaData;
-	ID3D11Texture2D* texture;
+	ID3D11Resource* texture;
 	ID3D11ShaderResourceView* textureView;
+
 
 };
 #endif

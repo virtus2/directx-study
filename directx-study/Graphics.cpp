@@ -241,6 +241,7 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
+	/*
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	result = bitmap->Render(direct3D->GetDeviceContext(), 100, 100);
 	if(!result)
@@ -254,6 +255,7 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
+	
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	worldMatrix = XMMatrixRotationY(rotation);
@@ -269,6 +271,7 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
+	*/
 	/*
 	result = textureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture());
 	if(!result)

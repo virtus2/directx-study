@@ -89,7 +89,7 @@ bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
 	}
 
 	char s2[128];
-	strcpy_s(s1, "Goodbye");
+	strcpy_s(s2, "Goodbye");
 	// Now update the sentence vertex buffer with the new string information.
 	result = UpdateSentence(sentence2, s2, 100, 200, 1.0f, 1.0f, 0.0f, deviceContext);
 	if (!result)
