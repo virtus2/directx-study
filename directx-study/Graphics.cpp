@@ -196,23 +196,17 @@ void Graphics::Shutdown()
 	}
 }
 
-bool Graphics::Frame()
+bool Graphics::Frame(int mouseX, int mouseY)
 {
 	bool result = false;
-	static float rotation = 0.0f;
 
-	// Update the rotation variable each frame.
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
-
-	result = Render(rotation);
+	result = text->SetMousePosition(mouseX, mouseY, direct3D->GetDeviceContext());
 	if(!result)
 	{
 		return false;
 	}
+
+	Render(0.0f);
 	return true;
 }
 

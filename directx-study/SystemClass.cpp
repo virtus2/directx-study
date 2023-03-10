@@ -23,7 +23,12 @@ bool SystemClass::Initialize()
 
 	InitializeWindows(screenWidth, screenHeight);
 	input = new Input;
-	input->Initialize();
+	result = input->Initialize(hInstance, hWnd, screenWidth, screenHeight);
+	if(!result)
+	{
+		MessageBox(hWnd, L"Could not initialize the input object.", L"Error", MB_OK);
+		return false;
+	}
 
 	graphics = new Graphics;
 	result = graphics->Initialize(screenWidth, screenHeight, hWnd);
@@ -105,12 +110,12 @@ void SystemClass::Shutdown()
 	}
 	if(input)
 	{
+		input->Shutdown();
 		delete input;
 		input = 0;
 	}
 
 	ShutdownWindows();
-	return;
 }
 
 void SystemClass::ShutdownWindows()
@@ -136,10 +141,10 @@ void SystemClass::ShutdownWindows()
 void SystemClass::Run()
 {
 	MSG msg;
+	bool done = false, result = false;
 
 	ZeroMemory(&msg, sizeof(msg));
 
-	bool done = false, result = false;
 	while(!done)
 	{
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -159,8 +164,14 @@ void SystemClass::Run()
 			result = Frame();
 			if(!result)
 			{
+				MessageBox(hWnd, L"Frame Processing Failed", L"Error", MB_OK);
 				done = true;
 			}
+		}
+
+		if (input->IsEscapePressed())
+		{
+			done = true;
 		}
 	}
 }
@@ -168,33 +179,31 @@ void SystemClass::Run()
 bool SystemClass::Frame()
 {
 	bool result = false;
-	if(input->IsKeyDown(VK_ESCAPE))
+	int mouseX, mouseY;
+
+	// Do the input frame processing.
+	result = input->Frame();
+	if (!result)
 	{
 		return false;
 	}
 
-	// do the frame processing for the grphics object.
-	result = graphics->Frame();
-	if(!result)
+	// Get the location of the mouse from the input object,
+	input->GetMouseLocation(mouseX, mouseY);
+
+	// Do the frame processing for the graphics object.
+	result = graphics->Frame(mouseX, mouseY);
+	if (!result)
 	{
 		return false;
 	}
+	
 	return true;
 }
 
 LRESULT SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch(umsg)
-	{
-	case WM_KEYDOWN:
-		input->KeyDown((unsigned int)wparam);
-		return 0;
-	case WM_KEYUP:
-		input->KeyUp((unsigned int)wparam);
-		return 0;
-	default:
-		return DefWindowProc(hwnd, umsg, wparam, lparam);
-	}
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)

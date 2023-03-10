@@ -66,32 +66,15 @@ bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
 	}
 
 	// Initialize the first sentence.
-	result = InitializeSentence(&sentence1, 16, device);
+	result = InitializeSentence(&sentence1, 64, device);
 	if (!result)
 	{
 		return false;
 	}
-
-	char s1[128];
-	strcpy_s(s1, "Hello");
-	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(sentence1, s1, 100, 100, 1.0f, 1.0f, 1.0f, deviceContext);
-	if (!result)
-	{
-		return false;
-	}
+	
 
 	// Initialize the first sentence.
-	result = InitializeSentence(&sentence2, 16, device);
-	if (!result)
-	{
-		return false;
-	}
-
-	char s2[128];
-	strcpy_s(s2, "Goodbye");
-	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(sentence2, s2, 100, 200, 1.0f, 1.0f, 0.0f, deviceContext);
+	result = InitializeSentence(&sentence2, 64, device);
 	if (!result)
 	{
 		return false;
@@ -137,6 +120,43 @@ bool Text::Render(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMA
 
 	// Draw the second sentence.
 	result = RenderSentence(deviceContext, sentence2, worldMatrix, orthoMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool Text::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* deviceContext)
+{
+	char tempString[32];
+	char mouseString[32];
+	bool result;
+	
+	// Convert the mouseX integer to string format.
+	_itoa_s(mouseX, tempString, 10);
+
+	// Setup the mouseX string.
+	strcpy_s(mouseString, "Mouse X: ");
+	strcat_s(mouseString, tempString);
+
+	// Update the sentence vertex buffer with the new string information.
+	result = UpdateSentence(sentence1, mouseString, 20, 20, 1.0f, 1.0f, 1.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+
+	// Convert the mouseY integer to string format.
+	_itoa_s(mouseY, tempString, 10);
+
+	// Setup the mouseY string.
+	strcpy_s(mouseString, "Mouse Y: ");
+	strcat_s(mouseString, tempString);
+
+	// Update the sentence vertex buffer with the new string information.
+	result = UpdateSentence(sentence2, mouseString, 20, 40, 1.0f, 1.0f, 1.0f, deviceContext);
 	if (!result)
 	{
 		return false;

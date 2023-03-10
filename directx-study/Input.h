@@ -1,6 +1,14 @@
 #ifndef _INPUT_H_
 #define _INPUT_H_
 
+/////////////
+// LINKING //
+/////////////
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
+
+#include <dinput.h>
+
 class Input
 {
 public:
@@ -8,15 +16,28 @@ public:
 	Input(const Input&);
 	~Input();
 
-	void Initialize();
+	bool Initialize(HINSTANCE, HWND, int, int);
+	void Shutdown();
+	bool Frame();
 
-	void KeyDown(unsigned int);
-	void KeyUp(unsigned int);
-
-	bool IsKeyDown(unsigned int);
+	bool IsEscapePressed();
+	void GetMouseLocation(int&, int&);
 
 private:
-	bool keys[256];
+	bool ReadKeyboard();
+	bool ReadMouse();
+	void ProcessInput();
+
+private:
+	IDirectInput8* directInput;
+	IDirectInputDevice8* keyboard;
+	IDirectInputDevice8* mouse;
+
+	unsigned char keyboardState[256];
+	DIMOUSESTATE mouseState;
+
+	int screenWidth, screenHeight;
+	int mouseX, mouseY;
 };
 
 #endif
