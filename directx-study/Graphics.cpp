@@ -55,6 +55,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Set the initial position of the camera.
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
 
+	/*
 	// Create and initialize the model object.
 	strcpy_s(modelFilename, "cube.txt");
 	strcpy_s(textureFilename, "stone01.tga");
@@ -65,6 +66,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
+	*/
 
 	light = new Light;
 	if(!light)
@@ -85,6 +87,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	/*
 	// Create the bitmap object.
 	bitmap = new Bitmap;
 	if (!bitmap)
@@ -100,6 +103,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 		return false;
 	}
+	*/
 	
 	textureShader = new TextureShader;
 	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);

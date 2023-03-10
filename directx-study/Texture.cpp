@@ -27,8 +27,8 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 	// D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
 	wchar_t* wcstr = Utility::CharToWChar(filename);
-	result = CreateDDSTextureFromFile(device, wcstr, &texture, &textureView);
-	if(!result)
+	hResult = CreateDDSTextureFromFile(device, wcstr, &texture, &textureView);
+	if(FAILED(hResult))
 	{
 		return false;
 	}
@@ -89,6 +89,7 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
 	return true;
 	*/
+	return true;
 }
 
 void Texture::Shutdown()
