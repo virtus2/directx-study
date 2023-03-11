@@ -14,6 +14,7 @@
 //
 #include "Input.h"
 #include "Graphics.h"
+#include "Sound.h"
 
 class SystemClass
 {
@@ -40,6 +41,7 @@ private:
 
 	Input* input;
 	Graphics* graphics;
+	Sound* sound;
 };
 
 //

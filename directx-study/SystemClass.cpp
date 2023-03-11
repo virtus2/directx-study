@@ -4,6 +4,7 @@ SystemClass::SystemClass()
 {
 	input = 0;
 	graphics = 0;
+	sound = 0;
 }
 
 SystemClass::SystemClass(const SystemClass&)
@@ -34,6 +35,15 @@ bool SystemClass::Initialize()
 	result = graphics->Initialize(screenWidth, screenHeight, hWnd);
 	if(!result)
 	{
+		MessageBox(hWnd, L"Could not initialize the graphics object.", L"Error", MB_OK);
+		return false;
+	}
+
+	sound = new Sound;
+	result = sound->Initialize(hWnd);
+	if(!result)
+	{
+		MessageBox(hWnd, L"Could not initialize the DirectSound object.", L"Error", MB_OK);
 		return false;
 	}
 	return true;
@@ -102,6 +112,12 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 void SystemClass::Shutdown()
 {
+	if(sound)
+	{
+		sound->Shutdown();
+		delete sound;
+		sound = 0;
+	}
 	if(graphics)
 	{
 		graphics->Shutdown();

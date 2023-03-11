@@ -160,6 +160,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightShader.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Text.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SystemClass.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
