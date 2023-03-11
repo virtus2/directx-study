@@ -87,7 +87,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	/*
 	// Create the bitmap object.
 	bitmap = new Bitmap;
 	if (!bitmap)
@@ -96,14 +95,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the bitmap object.
-	strcpy_s(bitmapFilename, "stone01.tga");
-	result = bitmap->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename, 256, 256);
+	strcpy_s(bitmapFilename, "seafloor.dds");
+	result = bitmap->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename, 32, 32);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 		return false;
 	}
-	*/
 	
 	textureShader = new TextureShader;
 	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
@@ -206,11 +204,11 @@ bool Graphics::Frame(int mouseX, int mouseY)
 		return false;
 	}
 
-	Render(0.0f);
+	Render(mouseX, mouseY);
 	return true;
 }
 
-bool Graphics::Render(float rotation)
+bool Graphics::Render(int mouseX, int mouseY)
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	bool result;
@@ -239,6 +237,13 @@ bool Graphics::Render(float rotation)
 	{
 		return false;
 	}
+
+	result = bitmap->Render(direct3D->GetDeviceContext(), mouseX, mouseY);
+	if (!result)
+	{
+		return false;
+	}
+
 	/*
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	result = bitmap->Render(direct3D->GetDeviceContext(), 100, 100);
@@ -270,13 +275,11 @@ bool Graphics::Render(float rotation)
 		return false;
 	}
 	*/
-	/*
-	result = textureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture());
+	result = textureShader->Render(direct3D->GetDeviceContext(), bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap->GetTexture());
 	if(!result)
 	{
 		return false;
 	}
-	*/
 
 	/*
 	result = colorShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);

@@ -31,7 +31,7 @@ public:
 	bool Frame(int mouseX, int mouseY);
 
 private:
-	bool Render(float);
+	bool Render(int, int);
 
 private:
 	D3DClass* direct3D;
