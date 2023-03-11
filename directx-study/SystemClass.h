@@ -15,6 +15,9 @@
 #include "Input.h"
 #include "Graphics.h"
 #include "Sound.h"
+#include "FpsCounter.h"
+#include "CpuUsage.h"
+#include "Timer.h"
 
 class SystemClass
 {
@@ -42,6 +45,10 @@ private:
 	Input* input;
 	Graphics* graphics;
 	Sound* sound;
+
+	FpsCounter* fpsCounter;
+	CpuUsage* cpuUsage;
+	Timer* timer;
 };
 
 //

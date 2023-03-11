@@ -194,15 +194,23 @@ void Graphics::Shutdown()
 	}
 }
 
-bool Graphics::Frame(int mouseX, int mouseY)
+bool Graphics::Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY)
 {
 	bool result = false;
 
-	result = text->SetMousePosition(mouseX, mouseY, direct3D->GetDeviceContext());
+	//result = text->SetMousePosition(mouseX, mouseY, direct3D->GetDeviceContext());
+	result = text->SetFps(fps, direct3D->GetDeviceContext());
 	if(!result)
 	{
 		return false;
 	}
+
+	result = text->SetCpu(cpu, direct3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
 
 	Render(mouseX, mouseY);
 	return true;

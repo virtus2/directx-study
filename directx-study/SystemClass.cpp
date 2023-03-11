@@ -5,6 +5,9 @@ SystemClass::SystemClass()
 	input = 0;
 	graphics = 0;
 	sound = 0;
+	fpsCounter = 0;
+	cpuUsage = 0;
+	timer = 0;
 }
 
 SystemClass::SystemClass(const SystemClass&)
@@ -38,7 +41,7 @@ bool SystemClass::Initialize()
 		MessageBox(hWnd, L"Could not initialize the graphics object.", L"Error", MB_OK);
 		return false;
 	}
-
+	/*
 	sound = new Sound;
 	result = sound->Initialize(hWnd);
 	if(!result)
@@ -46,6 +49,21 @@ bool SystemClass::Initialize()
 		MessageBox(hWnd, L"Could not initialize the DirectSound object.", L"Error", MB_OK);
 		return false;
 	}
+	*/
+	fpsCounter = new FpsCounter;
+	fpsCounter->Initialize();
+
+	cpuUsage = new CpuUsage;
+	cpuUsage->Initialize();
+
+	timer = new Timer;
+	result = timer->Initialize();
+	if(!result)
+	{
+		MessageBox(hWnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
@@ -112,6 +130,22 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 void SystemClass::Shutdown()
 {
+	if(timer)
+	{
+		delete timer;
+		timer = 0;
+	}
+	if(cpuUsage)
+	{
+		cpuUsage->Shutdown();
+		delete cpuUsage;
+		cpuUsage = 0;
+	}
+	if(fpsCounter)
+	{
+		delete fpsCounter;
+		fpsCounter = 0;
+	}
 	if(sound)
 	{
 		sound->Shutdown();
@@ -195,6 +229,11 @@ void SystemClass::Run()
 bool SystemClass::Frame()
 {
 	bool result = false;
+
+	timer->Frame();
+	fpsCounter->Frame();
+	cpuUsage->Frame();
+
 	int mouseX, mouseY;
 
 	// Do the input frame processing.
@@ -208,7 +247,7 @@ bool SystemClass::Frame()
 	input->GetMouseLocation(mouseX, mouseY);
 
 	// Do the frame processing for the graphics object.
-	result = graphics->Frame(mouseX, mouseY);
+	result = graphics->Frame(fpsCounter->GetFps(), cpuUsage->GetCpuPercentage(), timer->GetTime(),mouseX, mouseY);
 	if (!result)
 	{
 		return false;

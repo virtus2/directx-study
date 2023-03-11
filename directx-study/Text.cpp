@@ -165,6 +165,75 @@ bool Text::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* deviceC
 	return true;
 }
 
+bool Text::SetFps(int fps, ID3D11DeviceContext* deviceContext)
+{
+	char temp[16];
+	char fpsString[16];
+	float red, green, blue;
+	bool result;
+
+	if (fps > 9999)
+	{
+		fps = 9999;
+	}
+
+	_itoa_s(fps, temp, 10);
+
+	strcpy_s(fpsString, "FPS: ");
+	strcat_s(fpsString, temp);
+
+	if (fps >= 60)
+	{
+		red = 0.0f;
+		green = 1.0f;
+		blue = 0.0f;
+	}
+	else if (fps < 60)
+	{
+		red = 1.0f;
+		green = 1.0f;
+		blue = 0.0f;
+	}
+	else if (fps < 30)
+	{
+		red = 1.0f;
+		green = 0.0f;
+		blue = 0.0f;
+	}
+
+	result = UpdateSentence(sentence1, fpsString, 20, 20, red, green, blue, deviceContext);
+	if(!result)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Text::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
+{
+	char tempString[16];
+	char cpuString[16];
+	bool result;
+
+
+	// Convert the cpu integer to string format.
+	_itoa_s(cpu, tempString, 10);
+
+	// Setup the cpu string.
+	strcpy_s(cpuString, "Cpu: ");
+	strcat_s(cpuString, tempString);
+	strcat_s(cpuString, "%");
+
+	// Update the sentence vertex buffer with the new string information.
+	result = UpdateSentence(sentence2, cpuString, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool Text::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device)
 {
 	VertexType* vertices;
