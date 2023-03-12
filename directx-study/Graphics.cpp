@@ -11,17 +11,15 @@ Graphics::Graphics()
 	// colorShader = 0;
 	textureShader = 0;
 	text = 0;
-
+	frustum = 0;
 }
 
 Graphics::Graphics(const Graphics&)
 {
-	
 }
 
 Graphics::~Graphics()
 {
-	
 }
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
@@ -54,11 +52,10 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Set the initial position of the camera.
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
-
-	/*
+	
 	// Create and initialize the model object.
-	strcpy_s(modelFilename, "cube.txt");
-	strcpy_s(textureFilename, "stone01.tga");
+	strcpy_s(modelFilename, "sphere.txt");
+	strcpy_s(textureFilename, "seafloor.dds");
 	model = new Model;
 	result = model->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), modelFilename, textureFilename);
 	if(!result)
@@ -66,7 +63,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-	*/
 
 	light = new Light;
 	if(!light)
@@ -125,6 +121,19 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 		return false;
 	}
+
+	modelList = new ModelList;
+	result = modelList->Initialize(25);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model list object.", L"Error", MB_OK);
+		return false;
+	}
+
+	frustum = new Frustum;
+
+	return true;
+	
 	/*
 	// Create and initialize the color shader object.
 	colorShader = new ColorShader;
@@ -141,6 +150,21 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	// Release the frustum object.
+	if(frustum)
+	{
+		delete frustum;
+		frustum = 0;
+	}
+
+	// Release the model list object.
+	if(modelList)
+	{
+		modelList->Shutdown();
+		delete modelList;
+		modelList = 0;
+	}
+
 	// Release the bitmap object.
 	if (bitmap)
 	{
@@ -194,9 +218,15 @@ void Graphics::Shutdown()
 	}
 }
 
-bool Graphics::Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY)
+bool Graphics::Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY)
 {
 	bool result = false;
+
+	// Set the position of the camera.
+	camera->SetPosition(0.0f, 0.0f, -10.0f);
+
+	// Set the rotation of the camera.
+	camera->SetRotation(0.0f, rotationY, 0.0f);
 
 	//result = text->SetMousePosition(mouseX, mouseY, direct3D->GetDeviceContext());
 	result = text->SetFps(fps, direct3D->GetDeviceContext());
@@ -210,8 +240,7 @@ bool Graphics::Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY)
 	{
 		return false;
 	}
-
-
+	
 	Render(mouseX, mouseY);
 	return true;
 }
@@ -219,7 +248,10 @@ bool Graphics::Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY)
 bool Graphics::Render(int mouseX, int mouseY)
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
-	bool result;
+	int modelCount, renderCount;
+	float positionX, positionY, positionZ;
+	XMFLOAT4 color;
+	bool result, renderModel;
 
 	// Clear the buffers to begin the scene.
 	direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -233,9 +265,57 @@ bool Graphics::Render(int mouseX, int mouseY)
 	direct3D->GetProjectionMatrix(projectionMatrix);
 	direct3D->GetOrthoMatrix(orthoMatrix);
 
+	// Construct the frustum.
+	frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+
+	// Get the number of models that will be rendered.
+	modelCount = modelList->GetModelCount();
+
+	// Initialize the count of models that have been rendered.
+	renderCount = 0;
+
+	// Go through all the models and render them only if they can be seen by the camera view.
+	for (int index = 0; index < modelCount; index++)
+	{
+		// Get the position and color of the sphere model at this index.
+		modelList->GetData(index, positionX, positionY, positionZ, color);
+
+		// Set the radius of the sphere to 1.0 since this is already known.
+		float radius = 1.0f;
+
+		// Check if the sphere model is in the view frustum.
+		renderModel = frustum->CheckSphere(positionX, positionY, positionZ, radius);
+
+		// If it can be seen then render it, if not skip this model and check the next sphere.
+		if(renderModel)
+		{
+			// Move the model to the location it should be rendered at.
+			worldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
+
+			// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+			model->Render(direct3D->GetDeviceContext());
+
+			// Render the model using the light shader.
+			lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+				model->GetTexture(), light->GetDirection(), color);
+			
+			// Reset to the original world matrix.
+			direct3D->GetWorldMatrix(worldMatrix);
+
+			// Since this model was rendered then increase the count for this frame.
+			renderCount++;
+		}
+	}
+
+	result = text->SetRenderCount(renderCount, direct3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
 	// Turn off the Z buffer to begin all 2D rendering.
 	direct3D->TurnZBufferOff();
-
+		
 	// Turn on the alpha blending before rendering the text.
 	direct3D->TurnOnAlphaBlending();
 
@@ -246,64 +326,13 @@ bool Graphics::Render(int mouseX, int mouseY)
 		return false;
 	}
 
-	result = bitmap->Render(direct3D->GetDeviceContext(), mouseX, mouseY);
-	if (!result)
-	{
-		return false;
-	}
-
-	/*
-	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	result = bitmap->Render(direct3D->GetDeviceContext(), 100, 100);
-	if(!result)
-	{
-		return false;
-	}
-
-	// Render the bitmap with the texture shader.
-	result = textureShader->Render(direct3D->GetDeviceContext(), bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap->GetTexture());
-	if(!result)
-	{
-		return false;
-	}
-	
-
-	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	worldMatrix = XMMatrixRotationY(rotation);
-
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	model->Render(direct3D->GetDeviceContext());
-
-	// Render the model using the light shader.
-	result = lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model->GetTexture(), light->GetDirection(), light->GetAmbientColor(), light->GetDiffuseColor(), camera->GetPosition(),
-		light->GetSpecularColor(), light->GetSpecularPower());
-	if (!result)
-	{
-		return false;
-	}
-	*/
-	result = textureShader->Render(direct3D->GetDeviceContext(), bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap->GetTexture());
-	if(!result)
-	{
-		return false;
-	}
-
-	/*
-	result = colorShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-	if(!result)
-	{
-		return false;
-	}
-	*/
-	// Present the rendered scene to the screen.
-
 	// Turn off alpha blending after rendering the text.
 	direct3D->TurnOffAlphaBlending();
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	direct3D->TurnZBufferOn();
 
+	// Present the rendered scene to the screen.
 	direct3D->EndScene();
 	return true;
 }

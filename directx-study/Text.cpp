@@ -214,8 +214,7 @@ bool Text::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
 	char tempString[16];
 	char cpuString[16];
 	bool result;
-
-
+	
 	// Convert the cpu integer to string format.
 	_itoa_s(cpu, tempString, 10);
 
@@ -232,6 +231,29 @@ bool Text::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
 	}
 
 	return true;
+}
+
+bool Text::SetRenderCount(int renderCount, ID3D11DeviceContext* deviceContext)
+{
+	char tempString[32];
+	char renderCountString[32];
+	bool result;
+
+	// Convert the cpu integer to string format.
+	_itoa_s(renderCount, tempString, 10);
+
+	// Setup the cpu string.
+	strcpy_s(renderCountString, "Render Count: ");
+	strcat_s(renderCountString, tempString);
+	strcat_s(renderCountString, "%");
+
+	// Update the sentence vertex buffer with the new string information.
+	result = UpdateSentence(sentence2, renderCountString, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+
 }
 
 bool Text::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device)

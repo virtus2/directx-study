@@ -8,6 +8,7 @@ SystemClass::SystemClass()
 	fpsCounter = 0;
 	cpuUsage = 0;
 	timer = 0;
+	cameraPosition = 0;
 }
 
 SystemClass::SystemClass(const SystemClass&)
@@ -63,6 +64,8 @@ bool SystemClass::Initialize()
 		MessageBox(hWnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
 		return false;
 	}
+
+	cameraPosition = new CameraPosition;
 
 	return true;
 }
@@ -130,6 +133,11 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 void SystemClass::Shutdown()
 {
+	if(cameraPosition)
+	{
+		delete cameraPosition;
+		cameraPosition = 0;
+	}
 	if(timer)
 	{
 		delete timer;
@@ -229,12 +237,13 @@ void SystemClass::Run()
 bool SystemClass::Frame()
 {
 	bool result = false;
+	bool keyDown = false;
+	float rotationY;
+	int mouseX, mouseY;
 
 	timer->Frame();
 	fpsCounter->Frame();
 	cpuUsage->Frame();
-
-	int mouseX, mouseY;
 
 	// Do the input frame processing.
 	result = input->Frame();
@@ -242,16 +251,28 @@ bool SystemClass::Frame()
 	{
 		return false;
 	}
+	// Set the frame time for calculating the updated position.
+	cameraPosition->SetFrameRate(timer->GetTime());
+
+	// Check if the left or right arrow key has been pressed, if so rotate the camera accordingly.
+	keyDown = input->IsKeyPressed(DIK_LEFTARROW);
+	cameraPosition->TurnLeft(keyDown);
+
+	keyDown = input->IsKeyPressed(DIK_RIGHTARROW);
+	cameraPosition->TurnRight(keyDown);
+
+	cameraPosition->GetRotation(rotationY);
 
 	// Get the location of the mouse from the input object,
 	input->GetMouseLocation(mouseX, mouseY);
 
 	// Do the frame processing for the graphics object.
-	result = graphics->Frame(fpsCounter->GetFps(), cpuUsage->GetCpuPercentage(), timer->GetTime(),mouseX, mouseY);
+	result = graphics->Frame(fpsCounter->GetFps(), cpuUsage->GetCpuPercentage(), rotationY, mouseX, mouseY);
 	if (!result)
 	{
 		return false;
 	}
+	
 	
 	return true;
 }

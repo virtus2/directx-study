@@ -18,6 +18,7 @@
 #include "FpsCounter.h"
 #include "CpuUsage.h"
 #include "Timer.h"
+#include "CameraPosition.h"
 
 class SystemClass
 {
@@ -49,6 +50,7 @@ private:
 	FpsCounter* fpsCounter;
 	CpuUsage* cpuUsage;
 	Timer* timer;
+	CameraPosition* cameraPosition;
 };
 
 //

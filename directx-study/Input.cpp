@@ -154,6 +154,17 @@ bool Input::IsEscapePressed()
 	return false;
 }
 
+bool Input::IsKeyPressed(int keyCode)
+{
+	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
+	if (keyboardState[keyCode] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void Input::GetMouseLocation(int& mouseX, int& mouseY)
 {
 	mouseX = this->mouseX;

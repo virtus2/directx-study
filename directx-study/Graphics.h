@@ -11,6 +11,8 @@
 #include "LightShader.h"
 #include "Light.h"
 #include "Text.h"
+#include "Frustum.h"
+#include "ModelList.h"
 //
 // Globals
 //
@@ -28,7 +30,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int fps, int cpu, float frameTime, int mouseX, int mouseY);
+	bool Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY);
 
 private:
 	bool Render(int, int);
@@ -43,6 +45,8 @@ private:
 	LightShader* lightShader;
 	Bitmap* bitmap;
 	Text* text;
+	ModelList* modelList;
+	Frustum* frustum;
 };
 
 #endif
