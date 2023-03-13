@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "Texture.h"
+#include "TextureArray.h"
 using namespace std;
 using namespace DirectX;
 
@@ -34,13 +35,16 @@ public:
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture();
+	ID3D11ShaderResourceView** GetTextureArray();
 
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*, char*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 private:
 	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, char*);
+	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*);
 	void ReleaseTexture();
 	bool LoadModel(char*);
 	void ReleaseModel();
@@ -53,6 +57,7 @@ private:
 	ID3D11Buffer* indexBuffer;
 	int vertexCount, indexCount;
 	Texture* texture;
+	TextureArray* textureArray;
 	ModelType* model;
 };
 

@@ -54,13 +54,24 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
 	
 	// Create and initialize the model object.
-	strcpy_s(modelFilename, "sphere.txt");
-	strcpy_s(textureFilename, "seafloor.dds");
+	strcpy_s(modelFilename, "square.txt");
+	wchar_t textureFilename1[128];
+	wchar_t textureFilename2[128];
+	wcscpy_s(textureFilename1, 128, L"stone01.dds");
+	wcscpy_s(textureFilename2, 128, L"dirt01.dds");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), modelFilename, textureFilename);
+	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
+		return false;
+	}
+
+	multiTextureShader = new MultiTextureShader;
+	result = multiTextureShader->Initialize(direct3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the multi texture shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -150,6 +161,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	if(multiTextureShader)
+	{
+		multiTextureShader->Shutdown();
+		delete multiTextureShader;
+		multiTextureShader = 0;
+	}
+
 	// Release the frustum object.
 	if(frustum)
 	{
@@ -265,50 +283,11 @@ bool Graphics::Render(int mouseX, int mouseY)
 	direct3D->GetProjectionMatrix(projectionMatrix);
 	direct3D->GetOrthoMatrix(orthoMatrix);
 
-	// Construct the frustum.
-	frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+	model->Render(direct3D->GetDeviceContext());
 
-	// Get the number of models that will be rendered.
-	modelCount = modelList->GetModelCount();
-
-	// Initialize the count of models that have been rendered.
-	renderCount = 0;
-
-	// Go through all the models and render them only if they can be seen by the camera view.
-	for (int index = 0; index < modelCount; index++)
-	{
-		// Get the position and color of the sphere model at this index.
-		modelList->GetData(index, positionX, positionY, positionZ, color);
-
-		// Set the radius of the sphere to 1.0 since this is already known.
-		float radius = 1.0f;
-
-		// Check if the sphere model is in the view frustum.
-		renderModel = frustum->CheckSphere(positionX, positionY, positionZ, radius);
-
-		// If it can be seen then render it, if not skip this model and check the next sphere.
-		if(renderModel)
-		{
-			// Move the model to the location it should be rendered at.
-			worldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
-
-			// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-			model->Render(direct3D->GetDeviceContext());
-
-			// Render the model using the light shader.
-			lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-				model->GetTexture(), light->GetDirection(), color);
-			
-			// Reset to the original world matrix.
-			direct3D->GetWorldMatrix(worldMatrix);
-
-			// Since this model was rendered then increase the count for this frame.
-			renderCount++;
-		}
-	}
-
-	result = text->SetRenderCount(renderCount, direct3D->GetDeviceContext());
-	if (!result)
+	result = multiTextureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		model->GetTextureArray());
+	if(!result)
 	{
 		return false;
 	}

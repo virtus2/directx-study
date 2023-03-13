@@ -27,12 +27,30 @@ ID3D11ShaderResourceView* Model::GetTexture()
 	return texture->GetTexture();
 }
 
+ID3D11ShaderResourceView** Model::GetTextureArray()
+{
+	return textureArray->GetTextureArray();
+}
+
 bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
 {
 	bool result;
 
 	texture = new Texture;
 	result = texture->Initialize(device, deviceContext, filename);
+	if(!result)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool Model::LoadTexture(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+{
+	bool result;
+	textureArray = new TextureArray;
+
+	result = textureArray->Initialize(device, filename1, filename2);
 	if(!result)
 	{
 		return false;
@@ -134,6 +152,33 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 
 	result = LoadTexture(device, deviceContext, textureFilename);
 	if(!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool Model::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename1, WCHAR* textureFilename2)
+{
+	bool result;
+
+	// Load in the model data.
+	result = LoadModel(modelFilename);
+	if (!result)
+	{
+		return false;
+	}
+
+	// Initialize the vertex and index buffers.
+	result = InitializeBuffers(device);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = LoadTexture(device, textureFilename1, textureFilename2);
+	if (!result)
 	{
 		return false;
 	}
@@ -273,6 +318,4 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	return;
 }

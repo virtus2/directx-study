@@ -13,6 +13,7 @@
 #include "Text.h"
 #include "Frustum.h"
 #include "ModelList.h"
+#include "MultiTextureShader.h"
 //
 // Globals
 //
@@ -47,6 +48,7 @@ private:
 	Text* text;
 	ModelList* modelList;
 	Frustum* frustum;
+	MultiTextureShader* multiTextureShader;
 };
 
 #endif
