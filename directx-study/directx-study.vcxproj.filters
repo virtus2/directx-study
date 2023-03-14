@@ -99,6 +99,9 @@
     <ClInclude Include="TextureArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LightMapShader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -178,14 +181,17 @@
     <ClCompile Include="ModelList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraPosition.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="MultiTextureShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CameraPosition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TextureArray.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightMapShader.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -217,6 +223,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="MultiTexture.ps">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="LightMap.vs">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="LightMap.ps">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

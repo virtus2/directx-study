@@ -14,6 +14,7 @@
 #include "Frustum.h"
 #include "ModelList.h"
 #include "MultiTextureShader.h"
+#include "LightMapShader.h"
 //
 // Globals
 //
@@ -49,6 +50,7 @@ private:
 	ModelList* modelList;
 	Frustum* frustum;
 	MultiTextureShader* multiTextureShader;
+	LightMapShader* lightMapShader;
 };
 
 #endif

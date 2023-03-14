@@ -162,6 +162,7 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="LightMapShader.h" />
     <ClInclude Include="LightShader.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelList.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightMapShader.cpp" />
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -218,6 +220,8 @@
     <None Include="Font.vs" />
     <None Include="Light.ps" />
     <None Include="Light.vs" />
+    <None Include="LightMap.ps" />
+    <None Include="LightMap.vs" />
     <None Include="MultiTexture.ps" />
     <None Include="MultiTexture.vs" />
     <None Include="Texture.ps" />

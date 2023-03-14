@@ -58,7 +58,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	wchar_t textureFilename1[128];
 	wchar_t textureFilename2[128];
 	wcscpy_s(textureFilename1, 128, L"stone01.dds");
-	wcscpy_s(textureFilename2, 128, L"dirt01.dds");
+	wcscpy_s(textureFilename2, 128, L"light01.dds");
 	model = new Model;
 	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2);
 	if(!result)
@@ -143,6 +143,14 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	frustum = new Frustum;
 
+	lightMapShader = new LightMapShader;
+	result = lightMapShader->Initialize(direct3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 	
 	/*
@@ -161,6 +169,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	if (lightMapShader)
+	{
+		lightMapShader->Shutdown();
+		delete lightMapShader;
+		lightMapShader = 0;
+	}
+
 	if(multiTextureShader)
 	{
 		multiTextureShader->Shutdown();
@@ -285,7 +300,7 @@ bool Graphics::Render(int mouseX, int mouseY)
 
 	model->Render(direct3D->GetDeviceContext());
 
-	result = multiTextureShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+	result = lightMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
 		model->GetTextureArray());
 	if(!result)
 	{
