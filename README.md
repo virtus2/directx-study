@@ -18,6 +18,8 @@ My personal project to study DirectX 11.
 - Tutorial 15: FPS, CPU Usage, and Timers
 - Tutorial 16: Frustum Culling
 - Tutorial 17: Multitexturing and Texture Arrays
+- Tutorial 18: Light Maps
+- Tutorial 19: Alpha Mapping
 
 ## References
 - [rastertek.com](https://www.rastertek.com/tutdx11s3.html)
