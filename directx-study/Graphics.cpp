@@ -57,21 +57,23 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	strcpy_s(modelFilename, "square.txt");
 	wchar_t textureFilename1[128];
 	wchar_t textureFilename2[128];
+	wchar_t textureFilename3[128];
 	wcscpy_s(textureFilename1, 128, L"stone01.dds");
-	wcscpy_s(textureFilename2, 128, L"light01.dds");
+	wcscpy_s(textureFilename2, 128, L"dirt01.dds");
+	wcscpy_s(textureFilename3, 128, L"alpha01.dds");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2);
+	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	multiTextureShader = new MultiTextureShader;
-	result = multiTextureShader->Initialize(direct3D->GetDevice(), hwnd);
-	if(!result)
+	alphaMapShader = new AlphaMapShader;
+	result = alphaMapShader->Initialize(direct3D->GetDevice(), hwnd);
+	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the multi texture shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the alpha map shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -169,6 +171,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	if(alphaMapShader)
+	{
+		alphaMapShader->Shutdown();
+		delete alphaMapShader;
+		alphaMapShader = 0;
+	}
+
 	if (lightMapShader)
 	{
 		lightMapShader->Shutdown();
@@ -300,9 +309,9 @@ bool Graphics::Render(int mouseX, int mouseY)
 
 	model->Render(direct3D->GetDeviceContext());
 
-	result = lightMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+	result = alphaMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model->GetTextureArray());
-	if(!result)
+	if (!result)
 	{
 		return false;
 	}

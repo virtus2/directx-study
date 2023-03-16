@@ -12,7 +12,7 @@ TextureArray::~TextureArray()
 {
 }
 
-bool TextureArray::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+bool TextureArray::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2, WCHAR* filename3)
 {
 	HRESULT result;
 	result = CreateDDSTextureFromFile(device, filename1, nullptr, &textures[0]);
@@ -23,6 +23,12 @@ bool TextureArray::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* fil
 
 	result = CreateDDSTextureFromFile(device, filename2, nullptr, &textures[1]);
 	if(FAILED(result))
+	{
+		return false;
+	}
+
+	result = CreateDDSTextureFromFile(device, filename3, nullptr, &textures[2]);
+	if (FAILED(result))
 	{
 		return false;
 	}
@@ -42,6 +48,12 @@ void TextureArray::Shutdown()
 	{
 		textures[1]->Release();
 		textures[1] = 0;
+	}
+	
+	if (textures[2])
+	{
+		textures[2]->Release();
+		textures[2] = 0;
 	}
 }
 

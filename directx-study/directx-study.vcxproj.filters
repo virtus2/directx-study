@@ -99,8 +99,11 @@
     <ClInclude Include="TextureArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AlphaMapShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="LightMapShader.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -193,6 +196,9 @@
     <ClCompile Include="LightMapShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AlphaMapShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.vs">
@@ -229,6 +235,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="LightMap.ps">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="AlphaMap.vs">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="AlphaMap.ps">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

@@ -13,13 +13,13 @@ public:
 	TextureArray(const TextureArray&);
 	~TextureArray();
 
-	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*);
+	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	void Shutdown();
 
 	ID3D11ShaderResourceView** GetTextureArray();
 
 private:
-	ID3D11ShaderResourceView* textures[2] = { nullptr, nullptr };
+	ID3D11ShaderResourceView* textures[3] = { nullptr, nullptr, nullptr };
 
 };
 #endif

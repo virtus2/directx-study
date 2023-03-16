@@ -45,12 +45,12 @@ bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	return true;
 }
 
-bool Model::LoadTexture(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+bool Model::LoadTexture(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2, WCHAR* filename3)
 {
 	bool result;
 	textureArray = new TextureArray;
 
-	result = textureArray->Initialize(device, filename1, filename2);
+	result = textureArray->Initialize(device, filename1, filename2, filename3);
 	if(!result)
 	{
 		return false;
@@ -159,7 +159,7 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
-bool Model::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename1, WCHAR* textureFilename2)
+bool Model::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename1, WCHAR* textureFilename2, WCHAR* textureFilename3)
 {
 	bool result;
 
@@ -177,7 +177,7 @@ bool Model::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* texture
 		return false;
 	}
 
-	result = LoadTexture(device, textureFilename1, textureFilename2);
+	result = LoadTexture(device, textureFilename1, textureFilename2, textureFilename3);
 	if (!result)
 	{
 		return false;

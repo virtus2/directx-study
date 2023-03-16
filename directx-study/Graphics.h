@@ -2,6 +2,8 @@
 #define  _GRAPHICS_H_
 
 #include <windows.h>
+
+#include "AlphaMapShader.h"
 #include "D3DClass.h"
 #include "Camera.h"
 #include "Model.h"
@@ -51,6 +53,7 @@ private:
 	Frustum* frustum;
 	MultiTextureShader* multiTextureShader;
 	LightMapShader* lightMapShader;
+	AlphaMapShader* alphaMapShader;
 };
 
 #endif
