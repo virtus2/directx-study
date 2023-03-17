@@ -12,6 +12,24 @@ TextureArray::~TextureArray()
 {
 }
 
+bool TextureArray::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+{
+	HRESULT result;
+	result = CreateDDSTextureFromFile(device, filename1, nullptr, &textures[0]);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	result = CreateDDSTextureFromFile(device, filename2, nullptr, &textures[1]);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool TextureArray::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2, WCHAR* filename3)
 {
 	HRESULT result;

@@ -54,26 +54,24 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	camera->SetPosition(0.0f, 0.0f, -10.0f);
 	
 	// Create and initialize the model object.
-	strcpy_s(modelFilename, "square.txt");
+	strcpy_s(modelFilename, "cube.txt");
 	wchar_t textureFilename1[128];
 	wchar_t textureFilename2[128];
-	wchar_t textureFilename3[128];
 	wcscpy_s(textureFilename1, 128, L"stone01.dds");
-	wcscpy_s(textureFilename2, 128, L"dirt01.dds");
-	wcscpy_s(textureFilename3, 128, L"alpha01.dds");
+	wcscpy_s(textureFilename2, 128, L"bump01.dds");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
+	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	alphaMapShader = new AlphaMapShader;
-	result = alphaMapShader->Initialize(direct3D->GetDevice(), hwnd);
+	bumpMapShader = new BumpMapShader;
+	result = bumpMapShader->Initialize(direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the alpha map shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the bump map shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -171,6 +169,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	if(bumpMapShader)
+	{
+		bumpMapShader->Shutdown();
+		delete bumpMapShader;
+		bumpMapShader = 0;
+	}
+
 	if(alphaMapShader)
 	{
 		alphaMapShader->Shutdown();
@@ -282,7 +287,7 @@ bool Graphics::Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY)
 	{
 		return false;
 	}
-	
+
 	Render(mouseX, mouseY);
 	return true;
 }
@@ -301,16 +306,21 @@ bool Graphics::Render(int mouseX, int mouseY)
 	// Generate the view matrix based on the camera's position
 	camera->Render();
 
+
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	camera->GetViewMatrix(viewMatrix);
 	direct3D->GetWorldMatrix(worldMatrix);
 	direct3D->GetProjectionMatrix(projectionMatrix);
 	direct3D->GetOrthoMatrix(orthoMatrix);
 
+	static float rotation = 0.0f;
+	rotation += (float)XM_PI * 0.0025;
+	worldMatrix = XMMatrixRotationY(rotation);
+
 	model->Render(direct3D->GetDeviceContext());
 
-	result = alphaMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model->GetTextureArray());
+	result = bumpMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model->GetTextureArray(), light->GetDirection(), light->GetDiffuseColor());
 	if (!result)
 	{
 		return false;

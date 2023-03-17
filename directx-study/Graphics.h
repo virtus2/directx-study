@@ -10,6 +10,7 @@
 #include "ColorShader.h"
 #include "TextureShader.h"
 #include "Bitmap.h"
+#include "BumpMapShader.h"
 #include "LightShader.h"
 #include "Light.h"
 #include "Text.h"
@@ -54,6 +55,7 @@ private:
 	MultiTextureShader* multiTextureShader;
 	LightMapShader* lightMapShader;
 	AlphaMapShader* alphaMapShader;
+	BumpMapShader* bumpMapShader;
 };
 
 #endif

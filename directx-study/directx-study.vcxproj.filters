@@ -105,6 +105,12 @@
     <ClInclude Include="LightMapShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BumpMap.vs">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BumpMapShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -199,6 +205,9 @@
     <ClCompile Include="AlphaMapShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BumpMapShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.vs">
@@ -241,6 +250,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="AlphaMap.ps">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="BumpMap.ps">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

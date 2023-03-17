@@ -13,6 +13,7 @@ public:
 	TextureArray(const TextureArray&);
 	~TextureArray();
 
+	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*);
 	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	void Shutdown();
 

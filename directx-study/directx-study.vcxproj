@@ -151,6 +151,8 @@
   <ItemGroup>
     <ClInclude Include="AlphaMapShader.h" />
     <ClInclude Include="Bitmap.h" />
+    <ClInclude Include="BumpMap.vs" />
+    <ClInclude Include="BumpMapShader.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraPosition.h" />
     <ClInclude Include="ColorShader.h" />
@@ -185,6 +187,7 @@
   <ItemGroup>
     <ClCompile Include="AlphaMapShader.cpp" />
     <ClCompile Include="Bitmap.cpp" />
+    <ClCompile Include="BumpMapShader.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraPosition.cpp" />
     <ClCompile Include="ColorShader.cpp" />
@@ -215,6 +218,7 @@
   <ItemGroup>
     <None Include="AlphaMap.ps" />
     <None Include="AlphaMap.vs" />
+    <None Include="BumpMap.ps" />
     <None Include="Color.ps" />
     <None Include="Color.vs">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
