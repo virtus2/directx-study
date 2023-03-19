@@ -313,22 +313,10 @@ bool Graphics::Render(int mouseX, int mouseY)
 	direct3D->GetProjectionMatrix(projectionMatrix);
 	direct3D->GetOrthoMatrix(orthoMatrix);
 
-	static float rotation = 0.0f;
-	rotation += (float)XM_PI * 0.0025;
-	worldMatrix = XMMatrixRotationY(rotation);
-
-	model->Render(direct3D->GetDeviceContext());
-
-	result = bumpMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model->GetTextureArray(), light->GetDirection(), light->GetDiffuseColor());
-	if (!result)
-	{
-		return false;
-	}
 
 	// Turn off the Z buffer to begin all 2D rendering.
 	direct3D->TurnZBufferOff();
-		
+
 	// Turn on the alpha blending before rendering the text.
 	direct3D->TurnOnAlphaBlending();
 
@@ -344,6 +332,19 @@ bool Graphics::Render(int mouseX, int mouseY)
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	direct3D->TurnZBufferOn();
+
+	static float rotation = 0.0f;
+	rotation += (float)XM_PI * 0.0025;
+	worldMatrix = XMMatrixRotationY(rotation);
+
+	model->Render(direct3D->GetDeviceContext());
+
+	result = bumpMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model->GetTextureArray(), light->GetDirection(), light->GetDiffuseColor());
+	if (!result)
+	{
+		return false;
+	}
 
 	// Present the rendered scene to the screen.
 	direct3D->EndScene();
