@@ -6,10 +6,15 @@ Graphics::Graphics()
 	camera = 0;
 	model = 0;
 	light = 0;
+	specularMapShader = 0;
+	bumpMapShader = 0;
+	multiTextureShader = 0;
+	lightMapShader = 0;
+	alphaMapShader = 0;
 	lightShader = 0;
+	textureShader = 0;
 	bitmap = 0;
 	// colorShader = 0;
-	textureShader = 0;
 	text = 0;
 	frustum = 0;
 }
@@ -24,7 +29,6 @@ Graphics::~Graphics()
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
-	char modelFilename[128];
 	char textureFilename[128];
 	char bitmapFilename[128];
 	bool result = false;
@@ -49,29 +53,29 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	camera->SetPosition(0.0f, 0.0f, -1.0f);
 	camera->Render();
 	camera->GetViewMatrix(baseViewMatrix);
-
-	// Set the initial position of the camera.
-	camera->SetPosition(0.0f, 0.0f, -10.0f);
 	
 	// Create and initialize the model object.
-	strcpy_s(modelFilename, "cube.txt");
+	char modelFilename[128];
 	wchar_t textureFilename1[128];
 	wchar_t textureFilename2[128];
-	wcscpy_s(textureFilename1, 128, L"stone01.dds");
-	wcscpy_s(textureFilename2, 128, L"bump01.dds");
+	wchar_t textureFilename3[128];
+	strcpy_s(modelFilename, "cube.txt");
+	wcscpy_s(textureFilename1, 128, L"stone02.dds");
+	wcscpy_s(textureFilename2, 128, L"bump02.dds");
+	wcscpy_s(textureFilename3, 128, L"spec02.dds");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2);
+	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	bumpMapShader = new BumpMapShader;
-	result = bumpMapShader->Initialize(direct3D->GetDevice(), hwnd);
+	specularMapShader = new SpecularMapShader;
+	result = specularMapShader->Initialize(direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the bump map shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the specular map shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -82,42 +86,10 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	light->SetDirection(1.0f, 0.0f, 1.0f);
+	light->SetDirection(0.0f, 0.0f, 1.0f);
 	light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	light->SetSpecularPower(32.0f);
-
-	lightShader = new LightShader;
-	result = lightShader->Initialize(direct3D->GetDevice(), hwnd);
-	if(!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the bitmap object.
-	bitmap = new Bitmap;
-	if (!bitmap)
-	{
-		return false;
-	}
-
-	// Initialize the bitmap object.
-	strcpy_s(bitmapFilename, "seafloor.dds");
-	result = bitmap->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), screenWidth, screenHeight, bitmapFilename, 32, 32);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
-		return false;
-	}
+	light->SetSpecularPower(16.0f);
 	
-	textureShader = new TextureShader;
-	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
-	if(!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
-		return false;
-	}
-
 	// Create the text object.
 	text = new Text;
 	if (!text)
@@ -130,24 +102,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
-		return false;
-	}
-
-	modelList = new ModelList;
-	result = modelList->Initialize(25);
-	if(!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model list object.", L"Error", MB_OK);
-		return false;
-	}
-
-	frustum = new Frustum;
-
-	lightMapShader = new LightMapShader;
-	result = lightMapShader->Initialize(direct3D->GetDevice(), hwnd);
-	if(!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -169,6 +123,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	if(specularMapShader)
+	{
+		specularMapShader->Shutdown();
+		delete specularMapShader;
+		specularMapShader = 0;
+	}
+
 	if(bumpMapShader)
 	{
 		bumpMapShader->Shutdown();
@@ -339,8 +300,9 @@ bool Graphics::Render(int mouseX, int mouseY)
 
 	model->Render(direct3D->GetDeviceContext());
 
-	result = bumpMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model->GetTextureArray(), light->GetDirection(), light->GetDiffuseColor());
+	result = specularMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model->GetTextureArray(), light->GetDirection(), light->GetDiffuseColor(), camera->GetPosition(), light->GetSpecularColor(), 
+		light->GetSpecularPower());
 	if (!result)
 	{
 		return false;

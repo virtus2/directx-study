@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Utility">
       <UniqueIdentifier>{4c700ecf-22ce-483d-84de-117f4fe3182e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{9afc6ba2-dd3e-438b-b636-04128ef8b18c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -105,10 +108,13 @@
     <ClInclude Include="LightMapShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BumpMap.vs">
+    <ClInclude Include="BumpMapShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BumpMapShader.h">
+    <ClInclude Include="BumpMap.vs">
+      <Filter>Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpecularMapShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -208,52 +214,61 @@
     <ClCompile Include="BumpMapShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SpecularMapShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Color.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Color.ps">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Texture.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Texture.ps">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Light.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Light.ps">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Font.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Font.ps">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="MultiTexture.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="MultiTexture.ps">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="LightMap.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="LightMap.ps">
-      <Filter>Header Files</Filter>
+    <None Include="AlphaMap.ps">
+      <Filter>Shader Files</Filter>
     </None>
     <None Include="AlphaMap.vs">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="AlphaMap.ps">
-      <Filter>Header Files</Filter>
+      <Filter>Shader Files</Filter>
     </None>
     <None Include="BumpMap.ps">
-      <Filter>Header Files</Filter>
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Color.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Color.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Font.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Font.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Light.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightMap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightMap.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="MultiTexture.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="MultiTexture.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SpecularMap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Texture.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Texture.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SpecularMap.ps">
+      <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
 </Project>

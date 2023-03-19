@@ -171,6 +171,7 @@
     <ClInclude Include="ModelList.h" />
     <ClInclude Include="MultiTextureShader.h" />
     <ClInclude Include="Sound.h" />
+    <ClInclude Include="SpecularMapShader.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Text.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="ModelList.cpp" />
     <ClCompile Include="MultiTextureShader.cpp" />
     <ClCompile Include="Sound.cpp" />
+    <ClCompile Include="SpecularMapShader.cpp" />
     <ClCompile Include="SystemClass.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -232,6 +234,8 @@
     <None Include="LightMap.vs" />
     <None Include="MultiTexture.ps" />
     <None Include="MultiTexture.vs" />
+    <None Include="SpecularMap.ps" />
+    <None Include="SpecularMap.vs" />
     <None Include="Texture.ps" />
     <None Include="Texture.vs" />
   </ItemGroup>

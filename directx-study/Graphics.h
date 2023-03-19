@@ -18,6 +18,7 @@
 #include "ModelList.h"
 #include "MultiTextureShader.h"
 #include "LightMapShader.h"
+#include "SpecularMapShader.h"
 //
 // Globals
 //
@@ -56,6 +57,7 @@ private:
 	LightMapShader* lightMapShader;
 	AlphaMapShader* alphaMapShader;
 	BumpMapShader* bumpMapShader;
+	SpecularMapShader* specularMapShader;
 };
 
 #endif
