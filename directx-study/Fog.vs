@@ -44,8 +44,15 @@ PixelInputType FogVertexShader(VertexInputType input)
     cameraPosition = mul(input.position, worldMatrix);
     cameraPosition = mul(cameraPosition, viewMatrix);
 
-    // Calculate linear fog.    
-    output.fogFactor = saturate((fogEnd - cameraPosition.z) / (fogEnd - fogStart));
+    // Calculate linear fog.
+    // Linear Fog
+    // output.fogFactor = saturate((fogEnd - cameraPosition.z) / (fogEnd - fogStart));
+
+    // Exponential Fog
+    // output.fogFactor = saturate(1.0/pow(2.71828, cameraPosition.z * 0.2f));
+
+    // Exponential2 Fog
+    output.fogFactor = saturate(1.0/pow(pow(2.71828, cameraPosition.z * 0.075f), 2));
 
     return output;
 }
