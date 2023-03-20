@@ -21,6 +21,7 @@
 #include "SpecularMapShader.h"
 #include "RenderTexture.h"
 #include "DebugWindow.h"
+#include "FogShader.h"
 //
 // Globals
 //
@@ -64,6 +65,7 @@ private:
 	SpecularMapShader* specularMapShader;
 	RenderTexture* renderTexture;
 	DebugWindow* debugWindow;
+	FogShader* fogShader;
 };
 
 #endif

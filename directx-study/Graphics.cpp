@@ -19,6 +19,7 @@ Graphics::Graphics()
 	frustum = 0;
 	debugWindow = 0;
 	renderTexture = 0;
+	fogShader = 0;
 }
 
 Graphics::Graphics(const Graphics&)
@@ -73,53 +74,26 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-	lightShader = new LightShader;
-	result = lightShader->Initialize(direct3D->GetDevice(), hwnd);
+
+	fogShader = new FogShader;
+	result = fogShader->Initialize(direct3D->GetDevice(), hwnd);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the fog shader object", L"Error", MB_OK);
 		return false;
 	}
 
-	light = new Light;
-	if(!light)
-	{
-		return false;
-	}
-	light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-	light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	light->SetDirection(0.0f, 0.0f, 1.0f);
-	light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	light->SetSpecularPower(16.0f);
-
-	renderTexture = new RenderTexture;
-	result = renderTexture->Initialize(direct3D->GetDevice(), screenWidth, screenHeight);
-	if(!result)
-	{
-		return false;
-	}
-
-	debugWindow = new DebugWindow;
-	result = debugWindow->Initialize(direct3D->GetDevice(), screenWidth, screenHeight, 100, 100);
-	if(!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the debug window object.", L"Error", MB_OK);
-		return false;
-	}
-
-	textureShader = new TextureShader;
-	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
-	if(!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-	
 	return true;
 }
 
 void Graphics::Shutdown()
 {
+	if(fogShader)
+	{
+		fogShader->Shutdown();
+		delete fogShader;
+		fogShader = 0;
+	}
 
 	if (renderTexture)
 	{
@@ -255,51 +229,43 @@ bool Graphics::Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY)
 
 bool Graphics::Render(int mouseX, int mouseY)
 {
+	float fogColor, fogStart, fogEnd;
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	int modelCount, renderCount;
 	float positionX, positionY, positionZ;
 	XMFLOAT4 color;
 	bool result, renderModel;
+	static float rotation = 0.0f;
 
-	result = RenderToTexture();
-	if(!result)
-	{
-		return false;
-	}
+	fogColor = 0.5f;
 
+	fogStart = 5.0f;
+	fogEnd = 10.0f;
+	
 	// Clear the buffers to begin the scene.
-	direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
 
-	result = RenderScene();
-	if(!result)
-	{
-		return false;
-	}
-	
-	// Turn off the Z buffer to begin all 2D rendering.
-	direct3D->TurnZBufferOff();
+	camera->Render();
 
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	camera->GetViewMatrix(viewMatrix);
 	direct3D->GetWorldMatrix(worldMatrix);
+	camera->GetViewMatrix(viewMatrix);
 	direct3D->GetProjectionMatrix(projectionMatrix);
-	direct3D->GetOrthoMatrix(orthoMatrix);
 
-	result = debugWindow->Render(direct3D->GetDeviceContext(), 50, 50);
-	if (!result)
+	rotation += (float)XM_PI * 0.0025f;
+	if(rotation > 360.0f)
 	{
-		return false;
+		rotation -= 360.0f;
 	}
-	
-	result = textureShader->Render(direct3D->GetDeviceContext(), debugWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, 
-		renderTexture->GetShaderResourceView());
+
+	worldMatrix = XMMatrixRotationY(rotation);
+
+	model->Render(direct3D->GetDeviceContext());
+
+	result = fogShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(), fogStart, fogEnd);
 	if(!result)
 	{
 		return false;
 	}
-
-	// Turn the Z buffer back on now that all 2D rendering has completed.
-	direct3D->TurnZBufferOn();
 
 	// Present the rendered scene to the screen.
 	direct3D->EndScene();

@@ -159,6 +159,7 @@
     <ClInclude Include="CpuUsage.h" />
     <ClInclude Include="D3DClass.h" />
     <ClInclude Include="DebugWindow.h" />
+    <ClInclude Include="FogShader.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontShader.h" />
     <ClInclude Include="FpsCounter.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="CpuUsage.cpp" />
     <ClCompile Include="D3DClass.cpp" />
     <ClCompile Include="DebugWindow.cpp" />
+    <ClCompile Include="FogShader.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontShader.cpp" />
     <ClCompile Include="FpsCounter.cpp" />
@@ -230,6 +232,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
     </None>
+    <None Include="Fog.ps" />
+    <None Include="Fog.vs" />
     <None Include="Font.ps" />
     <None Include="Font.vs" />
     <None Include="Light.ps" />
