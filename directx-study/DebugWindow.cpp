@@ -1,56 +1,45 @@
-#include "Bitmap.h"
+#include "DebugWindow.h"
 
-Bitmap::Bitmap()
-{
-	vertexBuffer = 0;
-	indexBuffer = 0;
-	texture = 0;
-}
-
-Bitmap::Bitmap(const Bitmap&)
-{
-	
-}
-
-Bitmap::~Bitmap()
+DebugWindow::DebugWindow()
 {
 }
 
-bool Bitmap::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int screenWidth, int screenHeight, WCHAR* textureFilename, int bitmapWidth, int bitmapHeight)
+DebugWindow::DebugWindow(const DebugWindow&)
+{
+}
+
+DebugWindow::~DebugWindow()
+{
+}
+
+bool DebugWindow::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, int bitmapWdith, int bitmapHeight)
 {
 	bool result;
-	// Store the screen size.
+
 	this->screenWidth = screenWidth;
 	this->screenHeight = screenHeight;
 
-	// Store the size in pixels that this bitmap should be rendered at.
-	this->bitmapWidth = bitmapWidth;
+	this->bitmapWidth = bitmapWdith;
 	this->bitmapHeight = bitmapHeight;
 
 	previousPosX = -1;
 	previousPosY = -1;
 
 	result = InitializeBuffers(device);
-	if(!result)
+	if (!result)
 	{
 		return false;
 	}
-
-	result = LoadTexture(device, textureFilename);
-	if(!result)
-	{
-		return false;
-	}
+	
 	return true;
 }
 
-void Bitmap::Shutdown()
+void DebugWindow::Shutdown()
 {
-	ReleaseTexture();
 	ShutdownBuffers();
 }
 
-bool Bitmap::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool DebugWindow::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
 {
 	bool result;
 
@@ -67,17 +56,12 @@ bool Bitmap::Render(ID3D11DeviceContext* deviceContext, int positionX, int posit
 	return true;
 }
 
-int Bitmap::GetIndexCount()
+int DebugWindow::GetIndexCount()
 {
 	return indexCount;
 }
 
-ID3D11ShaderResourceView* Bitmap::GetTexture()
-{
-	return texture->GetTexture();
-}
-
-bool Bitmap::InitializeBuffers(ID3D11Device* device)
+bool DebugWindow::InitializeBuffers(ID3D11Device* device)
 {
 	VertexType* vertices;
 	unsigned long* indices;
@@ -85,7 +69,7 @@ bool Bitmap::InitializeBuffers(ID3D11Device* device)
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
 	int i;
-
+	
 	// Set the number of vertices in the vertex array.
 	vertexCount = 6;
 
@@ -165,7 +149,7 @@ bool Bitmap::InitializeBuffers(ID3D11Device* device)
 	return true;
 }
 
-void Bitmap::ShutdownBuffers()
+void DebugWindow::ShutdownBuffers()
 {
 	// Release the index buffer.
 	if (indexBuffer)
@@ -182,7 +166,7 @@ void Bitmap::ShutdownBuffers()
 	}
 }
 
-bool Bitmap::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool DebugWindow::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
 {
 	float left, right, top, bottom;
 	VertexType* vertices;
@@ -264,7 +248,7 @@ bool Bitmap::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, in
 	return true;
 }
 
-void Bitmap::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void DebugWindow::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
 	unsigned int stride;
 	unsigned int offset;
@@ -281,34 +265,5 @@ void Bitmap::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-bool Bitmap::LoadTexture(ID3D11Device* device, WCHAR* filename)
-{
-	bool result;
-
-	texture = new Texture;
-	if(!texture)
-	{
-		return false;
-	}
-
-	result = texture->Initialize(device, filename);
-	if(!result)
-	{
-		return false;
-	}
-	return true;
-}
-
-void Bitmap::ReleaseTexture()
-{
-	// Release the texture object.
-	if (texture)
-	{
-		texture->Shutdown();
-		delete texture;
-		texture = 0;
-	}
 }
 

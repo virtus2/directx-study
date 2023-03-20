@@ -32,12 +32,12 @@ ID3D11ShaderResourceView** Model::GetTextureArray()
 	return textureArray->GetTextureArray();
 }
 
-bool Model::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool Model::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	bool result;
 
 	texture = new Texture;
-	result = texture->Initialize(device, deviceContext, filename);
+	result = texture->Initialize(device, filename);
 	if(!result)
 	{
 		return false;
@@ -145,7 +145,7 @@ void Model::ReleaseModel()
 	}
 }
 
-bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
+bool Model::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
 {
 	bool result;
 
@@ -163,7 +163,7 @@ bool Model::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	result = LoadTexture(device, deviceContext, textureFilename);
+	result = LoadTexture(device, textureFilename);
 	if(!result)
 	{
 		return false;

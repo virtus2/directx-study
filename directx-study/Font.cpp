@@ -14,7 +14,7 @@ Font::~Font()
 {
 }
 
-bool Font::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* fontFilename, char* textureFilename)
+bool Font::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* textureFilename)
 {
 	bool result;
 
@@ -24,7 +24,7 @@ bool Font::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
 		return false;
 	}
 
-	result = LoadTexture(device, deviceContext, textureFilename);
+	result = LoadTexture(device, textureFilename);
 	if(!result)
 	{
 		return false;
@@ -151,7 +151,7 @@ void Font::ReleaseFontData()
 	}
 }
 
-bool Font::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool Font::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	bool result;
 
@@ -161,7 +161,7 @@ bool Font::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 		return false;
 	}
 
-	result = texture->Initialize(device, deviceContext, filename);
+	result = texture->Initialize(device, filename);
 	if (!result)
 	{
 		return false;

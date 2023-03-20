@@ -39,11 +39,11 @@ bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
 	}
 
 	char fontFilename[128];
-	char textureFilename[128];
+	wchar_t textureFilename[128];
 	strcpy_s(fontFilename, "fontdata.txt");
-	strcpy_s(textureFilename, "font.dds");
+	wcscpy_s(textureFilename, 128, L"font.dds");
 	// Initialize the font object.
-	result = font->Initialize(device, deviceContext, fontFilename, textureFilename);
+	result = font->Initialize(device, fontFilename, textureFilename);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);

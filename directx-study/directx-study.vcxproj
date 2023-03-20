@@ -158,6 +158,7 @@
     <ClInclude Include="ColorShader.h" />
     <ClInclude Include="CpuUsage.h" />
     <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="DebugWindow.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontShader.h" />
     <ClInclude Include="FpsCounter.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelList.h" />
     <ClInclude Include="MultiTextureShader.h" />
+    <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SpecularMapShader.h" />
     <ClInclude Include="SystemClass.h" />
@@ -194,6 +196,7 @@
     <ClCompile Include="ColorShader.cpp" />
     <ClCompile Include="CpuUsage.cpp" />
     <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="DebugWindow.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FontShader.cpp" />
     <ClCompile Include="FpsCounter.cpp" />
@@ -207,6 +210,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelList.cpp" />
     <ClCompile Include="MultiTextureShader.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SpecularMapShader.cpp" />
     <ClCompile Include="SystemClass.cpp" />

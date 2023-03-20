@@ -19,6 +19,8 @@
 #include "MultiTextureShader.h"
 #include "LightMapShader.h"
 #include "SpecularMapShader.h"
+#include "RenderTexture.h"
+#include "DebugWindow.h"
 //
 // Globals
 //
@@ -40,6 +42,8 @@ public:
 
 private:
 	bool Render(int, int);
+	bool RenderToTexture();
+	bool RenderScene();
 
 private:
 	D3DClass* direct3D;
@@ -58,6 +62,8 @@ private:
 	AlphaMapShader* alphaMapShader;
 	BumpMapShader* bumpMapShader;
 	SpecularMapShader* specularMapShader;
+	RenderTexture* renderTexture;
+	DebugWindow* debugWindow;
 };
 
 #endif

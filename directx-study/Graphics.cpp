@@ -17,6 +17,8 @@ Graphics::Graphics()
 	// colorShader = 0;
 	text = 0;
 	frustum = 0;
+	debugWindow = 0;
+	renderTexture = 0;
 }
 
 Graphics::Graphics(const Graphics&)
@@ -29,7 +31,6 @@ Graphics::~Graphics()
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
-	char textureFilename[128];
 	char bitmapFilename[128];
 	bool result = false;
 	direct3D = new D3DClass;
@@ -56,26 +57,27 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	
 	// Create and initialize the model object.
 	char modelFilename[128];
+	wchar_t textureFilename[128];
 	wchar_t textureFilename1[128];
 	wchar_t textureFilename2[128];
 	wchar_t textureFilename3[128];
 	strcpy_s(modelFilename, "cube.txt");
+	wcscpy_s(textureFilename, 128, L"seafloor.dds");
 	wcscpy_s(textureFilename1, 128, L"stone02.dds");
 	wcscpy_s(textureFilename2, 128, L"bump02.dds");
 	wcscpy_s(textureFilename3, 128, L"spec02.dds");
 	model = new Model;
-	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename1, textureFilename2, textureFilename3);
+	result = model->Initialize(direct3D->GetDevice(), modelFilename, textureFilename);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-
-	specularMapShader = new SpecularMapShader;
-	result = specularMapShader->Initialize(direct3D->GetDevice(), hwnd);
-	if (!result)
+	lightShader = new LightShader;
+	result = lightShader->Initialize(direct3D->GetDevice(), hwnd);
+	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the specular map shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -89,40 +91,50 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	light->SetDirection(0.0f, 0.0f, 1.0f);
 	light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	light->SetSpecularPower(16.0f);
-	
-	// Create the text object.
-	text = new Text;
-	if (!text)
-	{
-		return false;
-	}
 
-	// Initialize the text object.
-	result = text->Initialize(direct3D->GetDevice(), direct3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
-		return false;
-	}
-
-	return true;
-	
-	/*
-	// Create and initialize the color shader object.
-	colorShader = new ColorShader;
-	result = colorShader->Initialize(direct3D->GetDevice(), hwnd);
+	renderTexture = new RenderTexture;
+	result = renderTexture->Initialize(direct3D->GetDevice(), screenWidth, screenHeight);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	debugWindow = new DebugWindow;
+	result = debugWindow->Initialize(direct3D->GetDevice(), screenWidth, screenHeight, 100, 100);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the debug window object.", L"Error", MB_OK);
+		return false;
+	}
+
+	textureShader = new TextureShader;
+	result = textureShader->Initialize(direct3D->GetDevice(), hwnd);
+	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 	
 	return true;
-	*/
 }
 
 void Graphics::Shutdown()
 {
+
+	if (renderTexture)
+	{
+		renderTexture->Shutdown();
+		delete renderTexture;
+		renderTexture = 0;
+	}
+
+	if (debugWindow)
+	{
+		debugWindow->Shutdown();
+		delete debugWindow;
+		debugWindow = 0;
+	}
+
 	if(specularMapShader)
 	{
 		specularMapShader->Shutdown();
@@ -236,18 +248,6 @@ bool Graphics::Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY)
 	// Set the rotation of the camera.
 	camera->SetRotation(0.0f, rotationY, 0.0f);
 
-	//result = text->SetMousePosition(mouseX, mouseY, direct3D->GetDeviceContext());
-	result = text->SetFps(fps, direct3D->GetDeviceContext());
-	if(!result)
-	{
-		return false;
-	}
-
-	result = text->SetCpu(cpu, direct3D->GetDeviceContext());
-	if (!result)
-	{
-		return false;
-	}
 
 	Render(mouseX, mouseY);
 	return true;
@@ -261,12 +261,23 @@ bool Graphics::Render(int mouseX, int mouseY)
 	XMFLOAT4 color;
 	bool result, renderModel;
 
+	result = RenderToTexture();
+	if(!result)
+	{
+		return false;
+	}
+
 	// Clear the buffers to begin the scene.
 	direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Generate the view matrix based on the camera's position
-	camera->Render();
-
+	result = RenderScene();
+	if(!result)
+	{
+		return false;
+	}
+	
+	// Turn off the Z buffer to begin all 2D rendering.
+	direct3D->TurnZBufferOff();
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	camera->GetViewMatrix(viewMatrix);
@@ -274,43 +285,84 @@ bool Graphics::Render(int mouseX, int mouseY)
 	direct3D->GetProjectionMatrix(projectionMatrix);
 	direct3D->GetOrthoMatrix(orthoMatrix);
 
-
-	// Turn off the Z buffer to begin all 2D rendering.
-	direct3D->TurnZBufferOff();
-
-	// Turn on the alpha blending before rendering the text.
-	direct3D->TurnOnAlphaBlending();
-
-	// Render the text strings.
-	result = text->Render(direct3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	result = debugWindow->Render(direct3D->GetDeviceContext(), 50, 50);
 	if (!result)
 	{
 		return false;
 	}
-
-	// Turn off alpha blending after rendering the text.
-	direct3D->TurnOffAlphaBlending();
+	
+	result = textureShader->Render(direct3D->GetDeviceContext(), debugWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, 
+		renderTexture->GetShaderResourceView());
+	if(!result)
+	{
+		return false;
+	}
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	direct3D->TurnZBufferOn();
 
-	static float rotation = 0.0f;
-	rotation += (float)XM_PI * 0.0025;
-	worldMatrix = XMMatrixRotationY(rotation);
+	// Present the rendered scene to the screen.
+	direct3D->EndScene();
 
-	model->Render(direct3D->GetDeviceContext());
+	return true;
+}
 
-	result = specularMapShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model->GetTextureArray(), light->GetDirection(), light->GetDiffuseColor(), camera->GetPosition(), light->GetSpecularColor(), 
-		light->GetSpecularPower());
+bool Graphics::RenderToTexture()
+{
+	bool result;
+	
+	// Set the render target to be the render to texture.
+	renderTexture->SetRenderTarget(direct3D->GetDeviceContext(), direct3D->GetDepthStencilView());
+
+	// Clear the render to texture.
+	renderTexture->ClearRenderTarget(direct3D->GetDeviceContext(), direct3D->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
+
+	// Render the scene now and it will draw to the render to texture instead of the back buffer.
+	result = RenderScene();
 	if (!result)
 	{
 		return false;
 	}
 
-	// Present the rendered scene to the screen.
-	direct3D->EndScene();
+	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	direct3D->SetBackBufferRenderTarget();
+
 	return true;
+}
+
+bool Graphics::RenderScene()
+{
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	bool result;
+	static float rotation = 0.0f;
+	
+	// Generate the view matrix based on the camera's position.
+	camera->Render();
+
+	// Get the world, view, and projection matrices from the camera and d3d objects.
+	direct3D->GetWorldMatrix(worldMatrix);
+	camera->GetViewMatrix(viewMatrix);
+	direct3D->GetProjectionMatrix(projectionMatrix);
+
+	// Update the rotation variable each frame.
+	rotation += (float)XM_PI * 0.0025f;
+	if (rotation > 360.0f)
+	{
+		rotation -= 360.0f;
+	}
+
+	worldMatrix = XMMatrixRotationY(rotation);
+
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	model->Render(direct3D->GetDeviceContext());
+
+	// Render the model using the light shader.
+	result = lightShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model->GetTexture(), light->GetDirection(), light->GetDiffuseColor());
+	if (!result)
+	{
+		return false;
+	}
 }
 
 

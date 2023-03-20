@@ -94,6 +94,16 @@ void D3DClass::TurnOffAlphaBlending()
 	deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
 }
 
+ID3D11DepthStencilView* D3DClass::GetDepthStencilView()
+{
+	return depthStencilView;
+}
+
+void D3DClass::SetBackBufferRenderTarget()
+{
+	deviceContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+}
+
 
 bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullScreen, float screenDepth, float screenNear)
 {
@@ -565,8 +575,6 @@ void D3DClass::BeginScene(float red, float green, float blue, float alpha)
 
 	// Clear the depth buffer.
 	deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	return;
 }
 
 void D3DClass::EndScene()
@@ -582,6 +590,4 @@ void D3DClass::EndScene()
 		// Present as fast as possible.
 		swapChain->Present(0, 0);
 	}
-
-	return;
 }

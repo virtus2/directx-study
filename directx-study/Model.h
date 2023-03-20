@@ -53,14 +53,14 @@ public:
 	ID3D11ShaderResourceView* GetTexture();
 	ID3D11ShaderResourceView** GetTextureArray();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*, char*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*);
 	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*);
 	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 private:
-	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, char*);
+	bool LoadTexture(ID3D11Device*, WCHAR*);
 	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*);
 	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	void ReleaseTexture();
