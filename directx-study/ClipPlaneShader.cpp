@@ -16,10 +16,10 @@ bool ClipPlaneShader::Initialize(ID3D11Device* device, HWND hWnd)
 {
 	bool result;
 	wchar_t vsFilename[128];
-	wcscpy_s(vsFilename, 128, L"ClipPlane.vs");
+	wcscpy_s(vsFilename, 128, L"ClipPlaneVertexShader.hlsl");
 
 	wchar_t psFilename[128];
-	wcscpy_s(psFilename, 128, L"ClipPlane.ps");
+	wcscpy_s(psFilename, 128, L"ClipPlanePixelShader.hlsl");
 
 	result = InitializeShader(device, hWnd, vsFilename, psFilename);
 	if (!result)

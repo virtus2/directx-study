@@ -229,8 +229,8 @@
     <None Include="AlphaMap.ps" />
     <None Include="AlphaMap.vs" />
     <None Include="BumpMap.ps" />
-    <None Include="ClipPlane.ps" />
-    <None Include="ClipPlane.vs" />
+    <None Include="ClipPlanePixelShader.hlsl" />
+    <None Include="ClipPlaneVertexShader.hlsl" />
     <None Include="Color.ps" />
     <None Include="Color.vs">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

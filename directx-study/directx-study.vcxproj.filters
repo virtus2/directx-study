@@ -300,10 +300,10 @@
     <None Include="Fog.ps">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ClipPlane.vs">
+    <None Include="ClipPlaneVertexShader.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ClipPlane.ps">
+    <None Include="ClipPlanePixelShader.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
