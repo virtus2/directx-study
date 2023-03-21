@@ -155,6 +155,7 @@
     <ClInclude Include="BumpMapShader.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraPosition.h" />
+    <ClInclude Include="ClipPlaneShader.h" />
     <ClInclude Include="ColorShader.h" />
     <ClInclude Include="CpuUsage.h" />
     <ClInclude Include="D3DClass.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="BumpMapShader.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraPosition.cpp" />
+    <ClCompile Include="ClipPlaneShader.cpp" />
     <ClCompile Include="ColorShader.cpp" />
     <ClCompile Include="CpuUsage.cpp" />
     <ClCompile Include="D3DClass.cpp" />
@@ -227,6 +229,8 @@
     <None Include="AlphaMap.ps" />
     <None Include="AlphaMap.vs" />
     <None Include="BumpMap.ps" />
+    <None Include="ClipPlane.ps" />
+    <None Include="ClipPlane.vs" />
     <None Include="Color.ps" />
     <None Include="Color.vs">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

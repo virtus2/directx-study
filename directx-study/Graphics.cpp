@@ -20,6 +20,7 @@ Graphics::Graphics()
 	debugWindow = 0;
 	renderTexture = 0;
 	fogShader = 0;
+	clipPlaneShader = 0;
 }
 
 Graphics::Graphics(const Graphics&)
@@ -62,7 +63,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	wchar_t textureFilename1[128];
 	wchar_t textureFilename2[128];
 	wchar_t textureFilename3[128];
-	strcpy_s(modelFilename, "cube.txt");
+	strcpy_s(modelFilename, "triangle.txt");
 	wcscpy_s(textureFilename, 128, L"seafloor.dds");
 	wcscpy_s(textureFilename1, 128, L"stone02.dds");
 	wcscpy_s(textureFilename2, 128, L"bump02.dds");
@@ -74,12 +75,12 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
-
-	fogShader = new FogShader;
-	result = fogShader->Initialize(direct3D->GetDevice(), hwnd);
+	
+	clipPlaneShader = new ClipPlaneShader;
+	result = clipPlaneShader->Initialize(direct3D->GetDevice(), hwnd);
 	if(!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the fog shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the clip plane shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -88,6 +89,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void Graphics::Shutdown()
 {
+	if(clipPlaneShader)
+	{
+		clipPlaneShader->Shutdown();
+		delete clipPlaneShader;
+		clipPlaneShader = 0;
+	}
+
 	if(fogShader)
 	{
 		fogShader->Shutdown();
@@ -217,11 +225,7 @@ bool Graphics::Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY)
 	bool result = false;
 
 	// Set the position of the camera.
-	camera->SetPosition(0.0f, 0.0f, -10.0f);
-
-	// Set the rotation of the camera.
-	camera->SetRotation(0.0f, rotationY, 0.0f);
-
+	camera->SetPosition(0.0f, 0.0f, -5.0f);
 
 	Render(mouseX, mouseY);
 	return true;
@@ -229,21 +233,17 @@ bool Graphics::Frame(int fps, int cpu, float rotationY, int mouseX, int mouseY)
 
 bool Graphics::Render(int mouseX, int mouseY)
 {
-	float fogColor, fogStart, fogEnd;
+	XMFLOAT4 clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	int modelCount, renderCount;
 	float positionX, positionY, positionZ;
 	XMFLOAT4 color;
 	bool result, renderModel;
 	static float rotation = 0.0f;
-
-	fogColor = 0.5f;
-
-	fogStart = 5.0f;
-	fogEnd = 10.0f;
+	
 	
 	// Clear the buffers to begin the scene.
-	direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
+	direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera->Render();
 
@@ -251,17 +251,9 @@ bool Graphics::Render(int mouseX, int mouseY)
 	camera->GetViewMatrix(viewMatrix);
 	direct3D->GetProjectionMatrix(projectionMatrix);
 
-	rotation += (float)XM_PI * 0.0025f;
-	if(rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
-
-	worldMatrix = XMMatrixRotationY(rotation);
-
 	model->Render(direct3D->GetDeviceContext());
 
-	result = fogShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(), fogStart, fogEnd);
+	result = clipPlaneShader->Render(direct3D->GetDeviceContext(), model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(), clipPlane);
 	if(!result)
 	{
 		return false;

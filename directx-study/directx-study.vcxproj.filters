@@ -126,6 +126,9 @@
     <ClInclude Include="FogShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ClipPlaneShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -235,6 +238,9 @@
     <ClCompile Include="FogShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ClipPlaneShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="AlphaMap.ps">
@@ -292,6 +298,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Fog.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ClipPlane.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ClipPlane.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

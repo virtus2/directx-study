@@ -85,21 +85,23 @@ bool Model::LoadModel(char* filename)
 {
 	ifstream fin;
 	char input;
+	int i;
 
-	// Open the model file.
+
+	// Open the model file.  If it could not open the file then exit.
 	fin.open(filename);
-	// If it could not open the file then exit.
-	if(fin.fail())
+	if (fin.fail())
 	{
 		return false;
 	}
-	
+
 	// Read up to the value of vertex count.
 	fin.get(input);
-	while(input != ':')
+	while (input != ':')
 	{
 		fin.get(input);
 	}
+
 	// Read in the vertex count.
 	fin >> vertexCount;
 
@@ -108,7 +110,7 @@ bool Model::LoadModel(char* filename)
 
 	// Create the model using the vertex count that was read in.
 	model = new ModelType[vertexCount];
-	if(!model)
+	if (!model)
 	{
 		return false;
 	}
@@ -123,7 +125,7 @@ bool Model::LoadModel(char* filename)
 	fin.get(input);
 
 	// Read in the vertex data.
-	for (int i = 0; i < vertexCount; i++)
+	for (i = 0; i < vertexCount; i++)
 	{
 		fin >> model[i].x >> model[i].y >> model[i].z;
 		fin >> model[i].tu >> model[i].tv;
@@ -182,7 +184,7 @@ bool Model::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* texture
 		return false;
 	}
 
-	CalculateModelVectors();
+	// CalculateModelVectors();
 
 	result = InitializeBuffers(device);
 	if(!result)
@@ -253,8 +255,8 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 		vertices[i].position = XMFLOAT3(model[i].x, model[i].y, model[i].z);
 		vertices[i].texture = XMFLOAT2(model[i].tu, model[i].tv);
 		vertices[i].normal = XMFLOAT3(model[i].nx, model[i].ny, model[i].nz);
-		vertices[i].tangent = XMFLOAT3(model[i].tx, model[i].ty, model[i].tz);
-		vertices[i].binormal = XMFLOAT3(model[i].bx, model[i].by, model[i].bz);
+		// vertices[i].tangent = XMFLOAT3(model[i].tx, model[i].ty, model[i].tz);
+		// vertices[i].binormal = XMFLOAT3(model[i].bx, model[i].by, model[i].bz);
 		indices[i] = i;
 	}
 
@@ -415,6 +417,7 @@ void Model::CalculateModelVectors()
 		CalculateNormal(tangent, binormal, normal);
 
 		// Store the normal, tangent, and binormal for this face back in the model structure.
+		/*
 		model[index - 1].nx = normal.x;
 		model[index - 1].ny = normal.y;
 		model[index - 1].nz = normal.z;
@@ -444,6 +447,7 @@ void Model::CalculateModelVectors()
 		model[index - 3].bx = binormal.x;
 		model[index - 3].by = binormal.y;
 		model[index - 3].bz = binormal.z;
+		*/
 	}
 }
 

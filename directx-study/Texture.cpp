@@ -19,15 +19,10 @@ Texture::~Texture()
 
 bool Texture::Initialize(ID3D11Device* device, WCHAR* filename)
 {
-	bool result;
-	int height, width;
-	// D3D11_TEXTURE2D_DESC textureDesc;
-	HRESULT hResult;
-	unsigned int rowPitch;
-	// D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	HRESULT result;
 	
-	hResult = CreateDDSTextureFromFile(device, filename, &texture, &textureView);
-	if(FAILED(hResult))
+	result = CreateDDSTextureFromFile(device, filename, &texture, &textureView);
+	if(FAILED(result))
 	{
 		return false;
 	}

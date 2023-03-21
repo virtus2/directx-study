@@ -22,6 +22,7 @@
 #include "RenderTexture.h"
 #include "DebugWindow.h"
 #include "FogShader.h"
+#include "ClipPlaneShader.h"
 //
 // Globals
 //
@@ -66,6 +67,7 @@ private:
 	RenderTexture* renderTexture;
 	DebugWindow* debugWindow;
 	FogShader* fogShader;
+	ClipPlaneShader* clipPlaneShader;
 };
 
 #endif
