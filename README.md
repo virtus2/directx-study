@@ -20,6 +20,11 @@ My personal project to study DirectX 11.
 - Tutorial 17: Multitexturing and Texture Arrays
 - Tutorial 18: Light Maps
 - Tutorial 19: Alpha Mapping
+- Tutorial 20: Bump Mapping
+- Tutorial 21: Specular Mapping
+- Tutorial 22: Render To Texture
+- Tutorial 23: Fog
+- Tutorial 24: Clipping Planes
 
 ## References
 - [rastertek.com](https://www.rastertek.com/tutdx11s3.html)
