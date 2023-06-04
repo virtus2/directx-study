@@ -23,14 +23,6 @@
 #include "DebugWindow.h"
 #include "FogShader.h"
 #include "ClipPlaneShader.h"
-//
-// Globals
-//
-const bool FULL_SCREEN = false;
-const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.f;
-const float SCREEN_NEAR = 0.1f;
-
 class Graphics
 {
 public:

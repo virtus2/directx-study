@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AlphaMapShader.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="BumpMap.vs" />
     <ClInclude Include="BumpMapShader.h" />
@@ -173,11 +174,13 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelList.h" />
     <ClInclude Include="MultiTextureShader.h" />
+    <ClInclude Include="Position.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SpecularMapShader.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureArray.h" />
@@ -191,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AlphaMapShader.cpp" />
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="BumpMapShader.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -214,10 +218,12 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelList.cpp" />
     <ClCompile Include="MultiTextureShader.cpp" />
+    <ClCompile Include="Position.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SpecularMapShader.cpp" />
     <ClCompile Include="SystemClass.cpp" />
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureArray.cpp" />

@@ -13,12 +13,12 @@
 // My Class Includes
 //
 #include "Input.h"
-#include "Graphics.h"
 #include "Sound.h"
 #include "FpsCounter.h"
 #include "CpuUsage.h"
 #include "Timer.h"
 #include "CameraPosition.h"
+#include "Application.h"
 
 class SystemClass
 {
@@ -43,14 +43,7 @@ private:
 	HINSTANCE hInstance;
 	HWND hWnd;
 
-	Input* input;
-	Graphics* graphics;
-	Sound* sound;
-
-	FpsCounter* fpsCounter;
-	CpuUsage* cpuUsage;
-	Timer* timer;
-	CameraPosition* cameraPosition;
+	Application* application;
 };
 
 //

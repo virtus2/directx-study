@@ -9,7 +9,6 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-
 class D3DClass
 {
 public:

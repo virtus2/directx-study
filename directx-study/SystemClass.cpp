@@ -2,13 +2,7 @@
 
 SystemClass::SystemClass()
 {
-	input = 0;
-	graphics = 0;
-	sound = 0;
-	fpsCounter = 0;
-	cpuUsage = 0;
-	timer = 0;
-	cameraPosition = 0;
+	application = 0;
 }
 
 SystemClass::SystemClass(const SystemClass&)
@@ -26,46 +20,27 @@ bool SystemClass::Initialize()
 	int screenWidth = 0, screenHeight = 0;
 	bool result = false;
 
+
+	// Initialize the width and height of the screen to zero before sending the variables into the function.
+	screenWidth = 0;
+	screenHeight = 0;
+
+	// Initialize the windows api.
 	InitializeWindows(screenWidth, screenHeight);
-	input = new Input;
-	result = input->Initialize(hInstance, hWnd, screenWidth, screenHeight);
-	if(!result)
+
+	// Create the application wrapper object.
+	application = new Application;
+	if (!application)
 	{
-		MessageBox(hWnd, L"Could not initialize the input object.", L"Error", MB_OK);
 		return false;
 	}
 
-	graphics = new Graphics;
-	result = graphics->Initialize(screenWidth, screenHeight, hWnd);
-	if(!result)
+	// Initialize the application wrapper object.
+	result = application->Initialize(hInstance, hWnd, screenWidth, screenHeight);
+	if (!result)
 	{
-		MessageBox(hWnd, L"Could not initialize the graphics object.", L"Error", MB_OK);
 		return false;
 	}
-	/*
-	sound = new Sound;
-	result = sound->Initialize(hWnd);
-	if(!result)
-	{
-		MessageBox(hWnd, L"Could not initialize the DirectSound object.", L"Error", MB_OK);
-		return false;
-	}
-	*/
-	fpsCounter = new FpsCounter;
-	fpsCounter->Initialize();
-
-	cpuUsage = new CpuUsage;
-	cpuUsage->Initialize();
-
-	timer = new Timer;
-	result = timer->Initialize();
-	if(!result)
-	{
-		MessageBox(hWnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
-		return false;
-	}
-
-	cameraPosition = new CameraPosition;
 
 	return true;
 }
@@ -133,46 +108,15 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 void SystemClass::Shutdown()
 {
-	if(cameraPosition)
+	// Release the application wrapper object.
+	if (application)
 	{
-		delete cameraPosition;
-		cameraPosition = 0;
-	}
-	if(timer)
-	{
-		delete timer;
-		timer = 0;
-	}
-	if(cpuUsage)
-	{
-		cpuUsage->Shutdown();
-		delete cpuUsage;
-		cpuUsage = 0;
-	}
-	if(fpsCounter)
-	{
-		delete fpsCounter;
-		fpsCounter = 0;
-	}
-	if(sound)
-	{
-		sound->Shutdown();
-		delete sound;
-		sound = 0;
-	}
-	if(graphics)
-	{
-		graphics->Shutdown();
-		delete graphics;
-		graphics = 0;
-	}
-	if(input)
-	{
-		input->Shutdown();
-		delete input;
-		input = 0;
+		application->Shutdown();
+		delete application;
+		application = 0;
 	}
 
+	// Shutdown the window.
 	ShutdownWindows();
 }
 
@@ -226,54 +170,20 @@ void SystemClass::Run()
 				done = true;
 			}
 		}
-
-		if (input->IsEscapePressed())
-		{
-			done = true;
-		}
 	}
 }
 
 bool SystemClass::Frame()
 {
 	bool result = false;
-	bool keyDown = false;
-	float rotationY;
-	int mouseX, mouseY;
 
-	timer->Frame();
-	fpsCounter->Frame();
-	cpuUsage->Frame();
-
-	// Do the input frame processing.
-	result = input->Frame();
+	// Do the frame processing for the application object.
+	result = application->Frame();
 	if (!result)
 	{
 		return false;
 	}
-	// Set the frame time for calculating the updated position.
-	cameraPosition->SetFrameRate(timer->GetTime());
 
-	// Check if the left or right arrow key has been pressed, if so rotate the camera accordingly.
-	keyDown = input->IsKeyPressed(DIK_LEFTARROW);
-	cameraPosition->TurnLeft(keyDown);
-
-	keyDown = input->IsKeyPressed(DIK_RIGHTARROW);
-	cameraPosition->TurnRight(keyDown);
-
-	cameraPosition->GetRotation(rotationY);
-
-	// Get the location of the mouse from the input object,
-	input->GetMouseLocation(mouseX, mouseY);
-
-	// Do the frame processing for the graphics object.
-	result = graphics->Frame(fpsCounter->GetFps(), cpuUsage->GetCpuPercentage(), rotationY, mouseX, mouseY);
-	if (!result)
-	{
-		return false;
-	}
-	
-	
 	return true;
 }
 
