@@ -91,7 +91,8 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
 	}
 
 	// Initialize the terrain object.
-	result = terrain->Initialize(direct3D->GetDevice());
+	char heightMapFilename[] = { "heightmap01.bmp" };
+	result = terrain->Initialize(direct3D->GetDevice(), heightMapFilename);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
