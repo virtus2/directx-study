@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{c8f3fb40-6665-4243-bb84-9b3eb0ef0950}</ProjectGuid>
-    <RootNamespace>directxstudy</RootNamespace>
+    <ProjectGuid>{505d53ce-1065-476c-8abf-c3364d6a3cb5}</ProjectGuid>
+    <RootNamespace>Game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,22 +70,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\x86\Debug;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\x86\Release;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\x64\Debug;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\x64\Release;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -120,13 +104,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -137,125 +119,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.2.1\lib\vs2019\x64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AlphaMapShader.h" />
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="Bitmap.h" />
-    <ClInclude Include="BumpMap.vs" />
-    <ClInclude Include="BumpMapShader.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CameraPosition.h" />
-    <ClInclude Include="ClipPlaneShader.h" />
-    <ClInclude Include="ColorShader.h" />
-    <ClInclude Include="CpuUsage.h" />
-    <ClInclude Include="D3DClass.h" />
-    <ClInclude Include="DebugWindow.h" />
-    <ClInclude Include="FogShader.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="FontShader.h" />
-    <ClInclude Include="FpsCounter.h" />
-    <ClInclude Include="Frustum.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="LightMapShader.h" />
-    <ClInclude Include="LightShader.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelList.h" />
-    <ClInclude Include="MultiTextureShader.h" />
-    <ClInclude Include="Position.h" />
-    <ClInclude Include="RenderTexture.h" />
-    <ClInclude Include="Sound.h" />
-    <ClInclude Include="SpecularMapShader.h" />
-    <ClInclude Include="SystemClass.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="Terrain.h" />
-    <ClInclude Include="Text.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureArray.h" />
-    <ClInclude Include="TextureShader.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Utility.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="directx-study.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="AlphaMapShader.cpp" />
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Bitmap.cpp" />
-    <ClCompile Include="BumpMapShader.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CameraPosition.cpp" />
-    <ClCompile Include="ClipPlaneShader.cpp" />
-    <ClCompile Include="ColorShader.cpp" />
-    <ClCompile Include="CpuUsage.cpp" />
-    <ClCompile Include="D3DClass.cpp" />
-    <ClCompile Include="DebugWindow.cpp" />
-    <ClCompile Include="FogShader.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FontShader.cpp" />
-    <ClCompile Include="FpsCounter.cpp" />
-    <ClCompile Include="Frustum.cpp" />
-    <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="LightMapShader.cpp" />
-    <ClCompile Include="LightShader.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelList.cpp" />
-    <ClCompile Include="MultiTextureShader.cpp" />
-    <ClCompile Include="Position.cpp" />
-    <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="Sound.cpp" />
-    <ClCompile Include="SpecularMapShader.cpp" />
-    <ClCompile Include="SystemClass.cpp" />
-    <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="Text.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureArray.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Utility.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="AlphaMap.ps" />
-    <None Include="AlphaMap.vs" />
-    <None Include="BumpMap.ps" />
-    <None Include="ClipPlanePixelShader.hlsl" />
-    <None Include="ClipPlaneVertexShader.hlsl" />
-    <None Include="Color.ps" />
-    <None Include="Color.vs">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-    </None>
-    <None Include="Fog.ps" />
-    <None Include="Fog.vs" />
-    <None Include="Font.ps" />
-    <None Include="Font.vs" />
-    <None Include="Light.ps" />
-    <None Include="Light.vs" />
-    <None Include="LightMap.ps" />
-    <None Include="LightMap.vs" />
-    <None Include="MultiTexture.ps" />
-    <None Include="MultiTexture.vs" />
-    <None Include="SpecularMap.ps" />
-    <None Include="SpecularMap.vs" />
-    <None Include="Texture.ps" />
-    <None Include="Texture.vs" />
+    <ClCompile Include="MyGame.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
