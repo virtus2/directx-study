@@ -1,7 +1,5 @@
 ﻿#include "Utility.h"
 #include <iostream>
-#include "atlbase.h"
-#include "atlstr.h"
 #include "comutil.h"
 
 char* Utility::WCharToChar(const wchar_t* str)
