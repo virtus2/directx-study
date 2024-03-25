@@ -15,6 +15,7 @@ namespace Engine
         virtual ~Game();
 
         void Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow);
+        void Update();
 
     public:
         std::unique_ptr<Input> input;

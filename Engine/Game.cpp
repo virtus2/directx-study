@@ -20,22 +20,39 @@ namespace Engine
 
     void Game::Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
     {
-		if (window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", 800, 600) == 0)
-		{
-			isRunning = true;
-		}
+		ASSERT(window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", 800, 600) == 0, "Window initialization failed.")
+		
+		HWND hWnd = window->GetWindowHandle();
+		ASSERT(input->Initialize(hWnd) == 0, "Input initialization failed.")
 
-		MSG msg = { 0 };
+		isRunning = true;
 		while (isRunning)
 		{
-			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+			MSG msg;
+			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				if (msg.message == WM_QUIT)
+				{
+					isRunning = false;
+				}
+				else
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
 			}
-			else
+
+			if (!isRunning)
 			{
+				break;
 			}
+			Update();
 		}
     }
+
+	void Game::Update()
+	{
+		input->Update();
+
+	}
 }
