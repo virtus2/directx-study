@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Game.h"
 #include "Input.h"
 #include "Graphics.h"
@@ -20,10 +20,16 @@ namespace Engine
 
     void Game::Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
     {
-		ASSERT(window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", 800, 600) == 0, "Window initialization failed.")
+		int width = 1280, height = 720;
+		// 윈도우 초기화
+		ASSERT(window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", width, height) == 0, "Window initialization failed.");
 		
+		// 인풋 초기화
 		HWND hWnd = window->GetWindowHandle();
-		ASSERT(input->Initialize(hWnd) == 0, "Input initialization failed.")
+		ASSERT(input->Initialize(hWnd) == 0, "Input initialization failed.");
+
+		// DirectX 11, 그래픽 관련 초기화
+		ASSERT(graphics->Initialize(hWnd, width, height) == 0, "Graphics initialization failed.");
 
 		isRunning = true;
 		while (isRunning)
