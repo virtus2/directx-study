@@ -15,8 +15,10 @@
 #include <Windows.h>
 #include <wrl/client.h>
 #include <wrl/event.h>
+#include <DirectXMath.h>
 
 #include <d3d11.h>
+#include <dxgi1_4.h>
 #include <cstdint>
 #include <cstdio>
 #include <cstdarg>
@@ -28,3 +30,5 @@
 
 #include <ppltasks.h>
 #include <functional>
+
+#include "Utility.h"
