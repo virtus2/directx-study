@@ -17,8 +17,6 @@
 #include <wrl/event.h>
 #include <DirectXMath.h>
 
-#include <d3d11.h>
-#include <dxgi1_4.h>
 #include <cstdint>
 #include <cstdio>
 #include <cstdarg>
@@ -32,3 +30,6 @@
 #include <functional>
 
 #include "Utility.h"
+
+class Display;
+class Graphics;

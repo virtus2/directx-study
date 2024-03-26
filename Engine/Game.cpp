@@ -11,6 +11,7 @@ namespace Engine
         input = std::make_unique<Input>();
         graphics = std::make_unique<Graphics>();
         window = std::make_unique<Window>();
+		display = std::make_unique<Display>();
 	}
 
 	Game::~Game()
@@ -18,9 +19,11 @@ namespace Engine
 
 	}
 
-    void Game::Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
+    void Game::Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow, int width, int height)
     {
-		int width = 1280, height = 720;
+		this->width = width;
+		this->height = height;
+
 		// 윈도우 초기화
 		ASSERT(window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", width, height) == 0, "Window initialization failed.");
 		
@@ -29,7 +32,10 @@ namespace Engine
 		ASSERT(input->Initialize(hWnd) == 0, "Input initialization failed.");
 
 		// DirectX 11, 그래픽 관련 초기화
-		ASSERT(graphics->Initialize(hWnd, width, height) == 0, "Graphics initialization failed.");
+		ASSERT(graphics->Initialize(display.get(), hWnd, width, height) == 0, "Graphics initialization failed.");
+
+		// 디스플레이 초기화
+		ASSERT(display->Initialize(graphics.get(), hWnd, width, height) == 0, "Display initialization failed.");
 
 		isRunning = true;
 		while (isRunning)
@@ -53,12 +59,20 @@ namespace Engine
 				break;
 			}
 			Update();
+			Render();
 		}
     }
 
 	void Game::Update()
 	{
 		input->Update();
+	}
 
+	void Game::Render()
+	{
+		display->SetViewport(width, height);
+		graphics->ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+		display->GetSwapChain()->Present(1, 0);
 	}
 }
