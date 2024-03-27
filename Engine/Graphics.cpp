@@ -41,6 +41,11 @@ int Graphics::Initialize(Display* display, HWND hWnd, int width, int height)
 			break;
 		}
 	}
+
+	d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
+	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
+
 	ASSERT_SUCCEEDED(result);
 	return 0;
 }
@@ -51,6 +56,7 @@ void Graphics::ClearColor(float r, float g, float b, float a)
 	auto renderTargetView = display->GetRenderTargetView();
 	auto depthStencilView = display->GetDepthStencilView();
 	context->ClearRenderTargetView(renderTargetView, color);
+	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 

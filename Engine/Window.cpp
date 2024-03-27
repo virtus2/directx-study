@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Window.h"
 
 Window::Window()
@@ -7,6 +7,7 @@ Window::Window()
 
 Window::~Window()
 {
+    DestroyWindow((HWND)hWnd);
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -14,8 +15,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_SIZE:
-        // TODO: window Å¬·¡½º Resize ÇÔ¼ö ±¸Çö
-        // Display::Resize((UINT)(UINT64)lParam & 0xFFFF, (UINT)(UINT64)lParam >> 16);
+        // TODO: window í´ë˜ìŠ¤ Resize í•¨ìˆ˜ êµ¬í˜„
+        // Display í´ë˜ìŠ¤ í¬ì¸í„° í•„ìš”í•  ê²ƒ ê°™ë‹¤...
         break;
 
     case WM_DESTROY:
@@ -31,11 +32,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int Window::Initialize(HINSTANCE hInstance, int nCmdShow, const wchar_t* className, const wchar_t* windowName, int width, int height)
 {
-    // DirectXMath ¶óÀÌºê·¯¸®°¡ ÇöÀç ÇÃ·§ÆûÀ» Áö¿øÇÏ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    // DirectXMath ë¼ì´ë¸ŒëŸ¬ë¦¬ê°€ í˜„ì¬ í”Œë«í¼ì„ ì§€ì›í•˜ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     if (!DirectX::XMVerifyCPUSupport())
         return 1;
 
-    // À©µµ¿ì¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    // ìœˆë„ìš°ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     WNDCLASSEX wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -51,7 +52,7 @@ int Window::Initialize(HINSTANCE hInstance, int nCmdShow, const wchar_t* classNa
     wcex.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
     ASSERT(RegisterClassEx(&wcex) != 0, "Unable to register a window.");
 
-    // À©µµ¿ì¸¦ »ı¼ºÇÕ´Ï´Ù.
+    // ìœˆë„ìš°ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
     RECT rc = { 0, 0, (LONG)width, (LONG)height};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 

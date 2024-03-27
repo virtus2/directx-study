@@ -24,6 +24,7 @@ private:
 	void CreateRenderTargetView();
 	void CreateRasterizerState();
 	void CreateDepthStencilView(int width, int height);
+	void CreateDepthStencilState();
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView = nullptr;

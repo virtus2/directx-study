@@ -16,7 +16,7 @@ namespace Engine
 
 	Game::~Game()
 	{
-
+		
 	}
 
     void Game::Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow, int width, int height)
@@ -70,8 +70,21 @@ namespace Engine
 
 	void Game::Render()
 	{
+		// 파이프라인 단계는 다음과 같습니다.
+		// Input Assembler 
+		// Vertex Shader 
+		// Hull Shader
+		// Tessellator
+		// Domain Shader
+		// Geometry Shader
+		// Rasterizer
+		// Pixel Shader
+		// Output Merger
+
 		display->SetViewport(width, height);
-		graphics->ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		graphics->ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
+
+		// TODO: 메쉬 렌더링
 
 		display->GetSwapChain()->Present(1, 0);
 	}
