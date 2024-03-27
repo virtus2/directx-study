@@ -10,6 +10,10 @@ public:
 	~Graphics();
 
 	int Initialize(Display* display, HWND hWnd, int width, int height);
+
+	void CreateRasterizerState();
+	void SetRasterizerState(bool wireframe = false);
+
 	void ClearColor(float r, float g, float b, float a);
 
 	void CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels);
@@ -29,5 +33,8 @@ private:
 	Microsoft::WRL::ComPtr<IDXGIAdapter> dxgiAdapter = nullptr;
 	Microsoft::WRL::ComPtr<IDXGIFactory> dxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> context = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeRasterizerState = nullptr;
 };
 

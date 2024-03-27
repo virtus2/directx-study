@@ -28,8 +28,6 @@ private:
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeRasterizerState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState = nullptr;
 };

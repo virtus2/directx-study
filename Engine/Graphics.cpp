@@ -41,13 +41,37 @@ int Graphics::Initialize(Display* display, HWND hWnd, int width, int height)
 			break;
 		}
 	}
+	ASSERT_SUCCEEDED(result);
 
 	d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
 
-	ASSERT_SUCCEEDED(result);
+	CreateRasterizerState();
+
 	return 0;
+}
+
+void Graphics::CreateRasterizerState()
+{
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+	rasterizerDesc.FrontCounterClockwise = false; // 시계방향이 앞면
+	rasterizerDesc.DepthClipEnable = TRUE;
+
+	d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+
+	// 와이어프레임 렌더링용 래스터라이저 상태
+	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	d3dDevice->CreateRasterizerState(&rasterizerDesc, &wireframeRasterizerState);
+}
+
+void Graphics::SetRasterizerState(bool wireframe)
+{
+	context->RSSetState(wireframe ? wireframeRasterizerState.Get() : rasterizerState.Get());
 }
 
 void Graphics::ClearColor(float r, float g, float b, float a)

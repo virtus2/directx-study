@@ -80,25 +80,6 @@ void Display::SetViewport(int width, int height)
 	context->RSSetViewports(1, &viewport);
 }
 
-void Display::CreateRasterizerState()
-{
-	D3D11_RASTERIZER_DESC rasterizerDesc;
-	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
-	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_BACK; 
-	rasterizerDesc.FrontCounterClockwise = false; // 시계방향이 앞면
-	rasterizerDesc.DepthClipEnable = TRUE;
-
-	// 일반 래스터라이저 상태
-	auto device = graphics->GetDevice();
-	device->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
-
-	// 와이어프레임 렌더링용 래스터라이저 상태
-	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
-	rasterizerDesc.CullMode = D3D11_CULL_NONE;
-	device->CreateRasterizerState(&rasterizerDesc, &wireframeRasterizerState);
-}
-
 void Display::CreateDepthStencilView(int width, int height)
 {
 	D3D11_TEXTURE2D_DESC depthStencilBufferDesc;

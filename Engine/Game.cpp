@@ -83,7 +83,7 @@ namespace Engine
 
 		display->SetViewport(width, height);
 		graphics->ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
-
+		graphics->SetRasterizerState();
 		// TODO: 메쉬 렌더링
 
 		display->GetSwapChain()->Present(1, 0);
