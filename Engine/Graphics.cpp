@@ -1,7 +1,7 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Graphics.h"
 #include "Display.h"
-#pragma comment(lib, "d3d11.lib")
+
 
 Graphics::Graphics()
 {
@@ -58,15 +58,65 @@ void Graphics::CreateRasterizerState()
 	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_BACK;
-	rasterizerDesc.FrontCounterClockwise = false; // �ð������ �ո�
+	rasterizerDesc.FrontCounterClockwise = false; // 시계방향이 앞면
 	rasterizerDesc.DepthClipEnable = TRUE;
 
 	d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
 
-	// ���̾������� �������� �����Ͷ����� ����
+	// 와이어프레임 렌더링용 래스터라이저 상태
 	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 	d3dDevice->CreateRasterizerState(&rasterizerDesc, &wireframeRasterizerState);
+}
+
+void Graphics::CreateVertexShader(std::wstring& filePath)
+{
+	Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBlob;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+
+	UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+	HRESULT result = D3DCompileFromFile(
+		filePath.c_str(), // 파일 경로(파일명)
+		nullptr, // 컴파일 시 사용할 매크로 정의
+		nullptr, // 컴파일 시 사용할 include 정의
+		"main", // 쉐이더에서 사용할 진입점 함수의 이름
+		"vs_5_0", // 컴파일할 쉐이더의 대상 프로파일
+		compileFlags, // 컴파일 옵션
+		0, // 추가 컴파일 옵션
+		&vertexShaderBlob, // 컴파일된 쉐이더 코드
+		&errorBlob // 컴파일 에러 메시지
+	);
+
+	if (FAILED(result))
+	{
+		if((result & D3D11_ERROR_FILE_NOT_FOUND) != 0)
+		{
+			MessageBox(nullptr, L"File not found", L"Error", MB_OK);
+		}
+		else
+		{
+			if(errorBlob)
+			{
+				MessageBox(nullptr, (LPCWSTR)errorBlob->GetBufferPointer(), L"Error", MB_OK);
+			}
+			else
+			{
+				MessageBox(nullptr, L"Unknown error", L"Error", MB_OK);
+			}
+		}
+	}
+	
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
+	result = d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &vertexShader);
+	if(FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create vertex shader", L"Error", MB_OK);
+	}
+	vertexShaders.insert({ filePath, vertexShader });
 }
 
 void Graphics::SetRasterizerState(bool wireframe)

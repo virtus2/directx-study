@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include "pch.h"
 
+#pragma comment(lib, "d3d11.lib")
 #include <d3d11.h>
-
+#include <d3dcompiler.h>
+#include <unordered_map>
 class Mesh;
 
 class Graphics
@@ -14,7 +16,9 @@ public:
 	int Initialize(Display* display, HWND hWnd, int width, int height);
 
 	void CreateRasterizerState();
+	void CreateVertexShader(std::wstring& filePath);
 	void SetRasterizerState(bool wireframe = false);
+
 
 	void ClearColor(float r, float g, float b, float a);
 	void DrawMesh(Mesh& mesh);
@@ -39,5 +43,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeRasterizerState = nullptr;
+	
+	std::unordered_map<std::wstring, Microsoft::WRL::ComPtr<ID3D11VertexShader>> vertexShaders;
 };
 

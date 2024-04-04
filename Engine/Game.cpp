@@ -102,6 +102,8 @@ namespace Engine
 		std::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
 		mesh.CreateIndexBuffer(graphics->GetDevice(), indices);
 
+		std::wstring vsFilename = L"Shaders/SimpleVertexShader.hlsl";
+		graphics->CreateVertexShader(vsFilename);
 		graphics->DrawMesh(mesh);
 
 		display->GetSwapChain()->Present(1, 0);
