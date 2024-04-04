@@ -3,6 +3,8 @@
 
 #include <d3d11.h>
 
+class Mesh;
+
 class Graphics
 {
 public:
@@ -15,6 +17,7 @@ public:
 	void SetRasterizerState(bool wireframe = false);
 
 	void ClearColor(float r, float g, float b, float a);
+	void DrawMesh(Mesh& mesh);
 
 	void CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels);
 

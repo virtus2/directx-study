@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "Graphics.h"
 #include "Window.h"
+#include "Mesh.h"
 
 namespace Engine
 {
@@ -84,7 +85,24 @@ namespace Engine
 		display->SetViewport(width, height);
 		graphics->ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
 		graphics->SetRasterizerState();
+
 		// TODO: 메쉬 렌더링
+		// 테스트 코드
+		Mesh mesh;
+		std::vector<Vertex> vertices;
+		Vertex v1(Vector3(-1.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f));
+		Vertex v2(Vector3(1.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f));
+		Vertex v3(Vector3(1.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f));
+		Vertex v4(Vector3(-1.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f));
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+		vertices.push_back(v3);
+		vertices.push_back(v4);
+		mesh.CreateVertexBuffer(graphics->GetDevice(), vertices);
+		std::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
+		mesh.CreateIndexBuffer(graphics->GetDevice(), indices);
+
+		graphics->DrawMesh(mesh);
 
 		display->GetSwapChain()->Present(1, 0);
 	}

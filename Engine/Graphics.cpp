@@ -84,6 +84,10 @@ void Graphics::ClearColor(float r, float g, float b, float a)
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
+void Graphics::DrawMesh(Mesh& mesh)
+{
+}
+
 void Graphics::CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels)
 {
 	d3dDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, sampleCount, &numQualityLevels);
