@@ -13,6 +13,7 @@ namespace Engine
         graphics = std::make_unique<Graphics>();
         window = std::make_unique<Window>();
 		display = std::make_unique<Display>();
+		modelLoader = std::make_unique<ModelLoader>();
 	}
 
 	Game::~Game()
@@ -38,6 +39,8 @@ namespace Engine
 		// 디스플레이 초기화
 		ASSERT(display->Initialize(graphics.get(), hWnd, width, height) == 0, "Display initialization failed.");
 
+		std::string modelPath = "Models/zeldaPosed001/zeldaPosed001.fbx";
+		modelLoader->Load(modelPath);
 		isRunning = true;
 		while (isRunning)
 		{

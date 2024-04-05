@@ -5,6 +5,7 @@
 #include "Graphics.h"
 #include "Window.h"
 #include "Display.h"
+#include "ModelLoader.h"
 
 namespace Engine
 {
@@ -13,7 +14,6 @@ namespace Engine
     public:
         Game();
         virtual ~Game();
-
 
         void Run(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow, int width, int height);
         void Update();
@@ -33,5 +33,6 @@ namespace Engine
         std::unique_ptr<Graphics> graphics;
         std::unique_ptr<Window> window;
         std::unique_ptr<Display> display;
+        std::unique_ptr<ModelLoader> modelLoader;
     };
 }
