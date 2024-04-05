@@ -428,3 +428,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# My Game Assets
+Game/Models/*
