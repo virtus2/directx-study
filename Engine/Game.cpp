@@ -90,10 +90,10 @@ namespace Engine
 		// 테스트 코드
 		Mesh mesh;
 		std::vector<Vertex> vertices;
-		Vertex v1(Vector3(-1.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f));
-		Vertex v2(Vector3(1.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f));
-		Vertex v3(Vector3(1.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f));
-		Vertex v4(Vector3(-1.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f));
+		Vertex v1(Vector3(-0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f));
+		Vertex v2(Vector3(0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f));
+		Vertex v3(Vector3(0.5f, -0.5f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f));
+		Vertex v4(Vector3(-0.5f, -0.5f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f));
 		vertices.push_back(v1);
 		vertices.push_back(v2);
 		vertices.push_back(v3);
@@ -103,7 +103,10 @@ namespace Engine
 		mesh.CreateIndexBuffer(graphics->GetDevice(), indices);
 
 		std::wstring vsFilename = L"Shaders/SimpleVertexShader.hlsl";
+		std::wstring psFilename = L"Shaders/SimplePixelShader.hlsl";
 		graphics->CreateVertexShader(vsFilename);
+		graphics->CreatePixelShader(psFilename);
+		graphics->Render();
 		graphics->DrawMesh(mesh);
 
 		display->GetSwapChain()->Present(1, 0);

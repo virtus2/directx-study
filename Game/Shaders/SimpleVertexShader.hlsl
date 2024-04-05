@@ -24,6 +24,8 @@ VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
     float4 pos = float4(input.pos, 1.0f);
+    output.pos = pos;
+    /*
     pos = mul(pos, model);
     pos = mul(pos, view);
     pos = mul(pos, projection);
@@ -35,6 +37,6 @@ VS_OUTPUT main(VS_INPUT input)
     output.normal = normalize(output.normal);
     
     output.texCoord = input.texCoord;
-    
+    */
     return output;
 }

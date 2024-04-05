@@ -49,4 +49,6 @@ void Mesh::CreateIndexBuffer(ID3D11Device* device, std::vector<uint32_t> indices
 	{
 		Utility::Print("Failed to create index buffer");
 	}
+
+	indexCount = indices.size();
 }
