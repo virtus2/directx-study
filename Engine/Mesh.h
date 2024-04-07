@@ -4,20 +4,25 @@
 #include <d3d11.h>
 #include "Vertex.h"
 
+class Graphics;
+
 class Mesh
 {
 public:
 	Mesh();
 	~Mesh();
 
-    void CreateVertexBuffer(ID3D11Device* device, std::vector<Vertex> vertices);
-    void CreateIndexBuffer(ID3D11Device* device, std::vector<uint32_t> indices);
+    void SetMeshData(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+    void PrepareRender(Graphics* graphics);
 
     ID3D11Buffer* GetVertexBuffer() const { return vertexBuffer.Get(); }
     ID3D11Buffer* GetIndexBuffer() const { return indexBuffer.Get(); }
     unsigned int GetIndexCount() const { return indexCount; }
 
 private:
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 

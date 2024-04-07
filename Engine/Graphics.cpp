@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Graphics.h"
 #include "Display.h"
+#include "Model.h"
 #include "Mesh.h"
 
 Graphics::Graphics()
@@ -46,6 +47,7 @@ int Graphics::Initialize(Display* display, HWND hWnd, int width, int height)
 	d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	CreateRasterizerState();
 
@@ -69,7 +71,50 @@ void Graphics::CreateRasterizerState()
 	d3dDevice->CreateRasterizerState(&rasterizerDesc, &wireframeRasterizerState);
 }
 
-void Graphics::CreateVertexShader(std::wstring& filePath)
+void Graphics::CreateVertexBuffer(const std::vector<Vertex>& vertices, ID3D11Buffer** outVertexBuffer)
+{
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	bufferDesc.ByteWidth = sizeof(Vertex) * vertices.size();
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA vertexBufferData = {};
+	vertexBufferData.pSysMem = vertices.data();
+	vertexBufferData.SysMemPitch = 0;
+	vertexBufferData.SysMemSlicePitch = 0;
+
+	const HRESULT result = d3dDevice->CreateBuffer(&bufferDesc, &vertexBufferData, outVertexBuffer);
+	if (FAILED(result))
+	{
+		Utility::Print("Failed to create vertex buffer");
+	}
+}
+
+
+void Graphics::CreateIndexBuffer(const std::vector<uint32_t>& indices, ID3D11Buffer** outIndexBuffer)
+{
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	bufferDesc.ByteWidth = sizeof(uint32_t) * indices.size();
+	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA indexBufferData = {};
+	indexBufferData.pSysMem = indices.data();
+	indexBufferData.SysMemPitch = 0;
+	indexBufferData.SysMemSlicePitch = 0;
+
+	const HRESULT result = d3dDevice->CreateBuffer(&bufferDesc, &indexBufferData, outIndexBuffer);
+	if (FAILED(result))
+	{
+		Utility::Print("Failed to create index buffer");
+	}
+}
+
+void Graphics::CreateVertexShader(const std::wstring& filePath, ID3D11VertexShader** outVertexShader, ID3D11InputLayout** outInputLayout)
 {
 	Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBlob;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
@@ -93,13 +138,13 @@ void Graphics::CreateVertexShader(std::wstring& filePath)
 
 	if (FAILED(result))
 	{
-		if((result & D3D11_ERROR_FILE_NOT_FOUND) != 0)
+		if ((result & D3D11_ERROR_FILE_NOT_FOUND) != 0)
 		{
 			MessageBox(nullptr, L"File not found", L"Error", MB_OK);
 		}
 		else
 		{
-			if(errorBlob)
+			if (errorBlob)
 			{
 				MessageBox(nullptr, (LPCWSTR)errorBlob->GetBufferPointer(), L"Error", MB_OK);
 			}
@@ -109,15 +154,12 @@ void Graphics::CreateVertexShader(std::wstring& filePath)
 			}
 		}
 	}
-	
-	// Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
-	result = d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &vertexShader);
-	if(FAILED(result))
+
+	result = d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, outVertexShader);
+	if (FAILED(result))
 	{
 		MessageBox(nullptr, L"Failed to create vertex shader", L"Error", MB_OK);
 	}
-
-	vertexShaders.insert({ filePath, vertexShader });
 
 	D3D11_INPUT_ELEMENT_DESC basicInputElements[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -133,7 +175,7 @@ void Graphics::CreateVertexShader(std::wstring& filePath)
 		ARRAYSIZE(basicInputElements), // 입력 레이아웃 정의의 개수
 		vertexShaderBlob->GetBufferPointer(), // 컴파일된 쉐이더 코드, 유효성 검사용
 		vertexShaderBlob->GetBufferSize(), // 컴파일된 쉐이더 코드의 크기
-		&inputLayout // 입력 레이아웃
+		outInputLayout // 입력 레이아웃
 	);
 	if (FAILED(result))
 	{
@@ -141,7 +183,7 @@ void Graphics::CreateVertexShader(std::wstring& filePath)
 	}
 }
 
-void Graphics::CreatePixelShader(std::wstring& filePath)
+void Graphics::CreatePixelShader(const std::wstring& filePath, ID3D11PixelShader** outPixelShader)
 {
 	Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBlob;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
@@ -150,7 +192,7 @@ void Graphics::CreatePixelShader(std::wstring& filePath)
 #if defined(DEBUG) || defined(_DEBUG)
 	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
-	
+
 	HRESULT result = D3DCompileFromFile(
 		filePath.c_str(), // 파일 경로(파일명)
 		nullptr, // 컴파일 시 사용할 매크로 정의
@@ -180,7 +222,7 @@ void Graphics::CreatePixelShader(std::wstring& filePath)
 			}
 		}
 	}
-	result = d3dDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &pixelShader);
+	result = d3dDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, outPixelShader);
 	if (FAILED(result))
 	{
 		MessageBox(nullptr, L"Failed to create pixel shader", L"Error", MB_OK);
@@ -192,6 +234,13 @@ void Graphics::SetRasterizerState(bool wireframe)
 	context->RSSetState(wireframe ? wireframeRasterizerState.Get() : rasterizerState.Get());
 }
 
+void Graphics::SetShader(Shader* shader)
+{
+	context->IASetInputLayout(shader->GetInputLayout());
+	context->VSSetShader(shader->GetVertexShader(), nullptr, 0);
+	context->PSSetShader(shader->GetPixelShader(), nullptr, 0);
+}
+
 void Graphics::ClearColor(float r, float g, float b, float a)
 {
 	float color[4] = { r, g, b, a };
@@ -199,30 +248,30 @@ void Graphics::ClearColor(float r, float g, float b, float a)
 	auto depthStencilView = display->GetDepthStencilView();
 	context->ClearRenderTargetView(renderTargetView, color);
 	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView); // 초기화 코드에다가 옮길까?
 }
 
 void Graphics::Render()
 {
 }
 
-void Graphics::DrawMesh(Mesh& mesh)
+void Graphics::DrawMesh(Mesh* mesh)
 {
+	// TODO: 메쉬를 그린다.
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-
-	auto vertexBuffer = mesh.GetVertexBuffer();
-	auto indexBuffer = mesh.GetIndexBuffer();
-
-	context->IASetInputLayout(inputLayout.Get());
+	auto vertexBuffer = mesh->GetVertexBuffer();
+	auto indexBuffer = mesh->GetIndexBuffer();
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	context->VSSetShader(vertexShader.Get(), nullptr, 0);
-	context->PSSetShader(pixelShader.Get(), nullptr, 0);
-	context->DrawIndexed(mesh.GetIndexCount(), 0, 0);
+	context->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 }
+
+void Graphics::DrawModel(Model* model)
+{
+}
+
 
 void Graphics::CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels)
 {

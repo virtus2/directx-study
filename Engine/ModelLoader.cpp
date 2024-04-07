@@ -1,9 +1,22 @@
 #include "pch.h"
 #include "ModelLoader.h"
-#include "Vertex.h"
-#include "Mesh.h"
+#include "Model.h"
 
-void ModelLoader::Load(std::string& filePath)
+ModelLoader::ModelLoader()
+{
+}
+
+ModelLoader::~ModelLoader()
+{
+}
+
+int ModelLoader::Initialize(Graphics* graphics)
+{
+	this->graphics = graphics;
+	return 0;
+}
+
+void ModelLoader::Load(const std::string& filePath, Model* model)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
@@ -44,6 +57,10 @@ void ModelLoader::Load(std::string& filePath)
 						indices.push_back(face.mIndices[k]);
 					}
 				}
+
+				auto newMesh = std::make_shared<Mesh>();
+				newMesh->SetMeshData(vertices, indices);
+				model->AddMesh(newMesh);
 			}
 		}
 	}

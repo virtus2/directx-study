@@ -5,7 +5,11 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <unordered_map>
+
 class Mesh;
+class Model;
+class Shader;
+class Vertex;
 
 class Graphics
 {
@@ -16,14 +20,18 @@ public:
 	int Initialize(Display* display, HWND hWnd, int width, int height);
 
 	void CreateRasterizerState();
-	void CreateVertexShader(std::wstring& filePath);
-	void CreatePixelShader(std::wstring& filePath);
-	void SetRasterizerState(bool wireframe = false);
+	void CreateVertexBuffer(const std::vector<Vertex>& vertices, ID3D11Buffer** outVertexBuffer);
+	void CreateIndexBuffer(const std::vector<uint32_t>& indices, ID3D11Buffer** outIndexBuffer);
+	void CreateVertexShader(const std::wstring& filePath, ID3D11VertexShader** outVertexShader, ID3D11InputLayout** outInputLayout);
+	void CreatePixelShader(const std::wstring& filePath, ID3D11PixelShader** outPixelShader);
 
+	void SetRasterizerState(bool wireframe = false);
+	void SetShader(Shader* shader);
 
 	void ClearColor(float r, float g, float b, float a);
 	void Render();
-	void DrawMesh(Mesh& mesh);
+	void DrawMesh(Mesh* mesh);
+	void DrawModel(Model* model);
 
 	void CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels);
 
@@ -46,9 +54,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeRasterizerState = nullptr;
 	
-	std::unordered_map<std::wstring, Microsoft::WRL::ComPtr<ID3D11VertexShader>> vertexShaders; // 버텍스 쉐이더를 여러개 쓸 일이 있을까?
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout = nullptr; // 인풋 레이아웃을 다른 형태로 만들 일이 있을까?
 };
 

@@ -3,7 +3,8 @@
 #include "Input.h"
 #include "Graphics.h"
 #include "Window.h"
-#include "Mesh.h"
+#include "Entity.h"
+#include "Vertex.h"
 
 namespace Engine
 {
@@ -27,21 +28,24 @@ namespace Engine
 		this->height = height;
 
 		// 윈도우 초기화
-		ASSERT(window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", width, height) == 0, "Window initialization failed.");
+		window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", width, height);
 		
 		// 인풋 초기화
 		HWND hWnd = window->GetWindowHandle();
-		ASSERT(input->Initialize(hWnd) == 0, "Input initialization failed.");
+		input->Initialize(hWnd);
 
 		// DirectX 11, 그래픽 관련 초기화
-		ASSERT(graphics->Initialize(display.get(), hWnd, width, height) == 0, "Graphics initialization failed.");
+		graphics->Initialize(display.get(), hWnd, width, height);
 
 		// 디스플레이 초기화
-		ASSERT(display->Initialize(graphics.get(), hWnd, width, height) == 0, "Display initialization failed.");
+		display->Initialize(graphics.get(), hWnd, width, height);
 
-		std::string modelPath = "Models/zeldaPosed001/zeldaPosed001.fbx";
-		modelLoader->Load(modelPath);
+		// 모델 로더 초기화
+		modelLoader->Initialize(graphics.get());
+
+		// 게임 루프
 		isRunning = true;
+		BeginRun();
 		while (isRunning)
 		{
 			MSG msg;
@@ -70,6 +74,9 @@ namespace Engine
 	void Game::Update()
 	{
 		input->Update();
+
+		// TODO: Delta Time 계산해서 넘겨줘야함
+		OnUpdate();
 	}
 
 	void Game::Render()
@@ -91,7 +98,46 @@ namespace Engine
 
 		// TODO: 메쉬 렌더링
 		// 테스트 코드
-		Mesh mesh;
+		for (const auto& entity : entities)
+		{
+			auto model = entity->GetModel();
+			graphics->SetShader(model->GetShader().get());
+			if (model)
+			{
+				graphics->DrawMesh(model->GetMesh(0).get());
+			}
+		}
+		// graphics->Render();
+
+		display->GetSwapChain()->Present(1, 0);
+	}
+
+	std::shared_ptr<Entity> Game::CreateEntity()
+	{
+		// TODO: Entity를 생성하고 관련 데이터를 세팅한다.
+		auto entity = std::make_shared<Entity>();
+		entities.push_back(entity);
+		return entity;
+	}
+
+	std::shared_ptr<Model> Game::CreateModel(const std::string& filePath)
+	{
+		// TODO: filePath 타입을 wstring으로 바꾼다.
+		auto model = std::make_shared<Model>();
+		modelLoader->Load(filePath, model.get());
+
+		// TODO: 모델 생성 타이밍과 렌더링 준비 타이밍을 분리한다.
+		// 지금은 모델을 생성하자마자 바로 버텍스 버퍼, 인덱스 버퍼를 만들어주고 있다.
+		// 사실 함수 이름도 마음에 안들어...
+		model->PrepareRender(graphics.get());
+		return model;
+	}
+
+	std::shared_ptr<Model> Game::CreateRectangle()
+	{
+		auto model = std::make_shared<Model>();
+		auto mesh = std::make_shared<Mesh>();
+
 		std::vector<Vertex> vertices;
 		Vertex v1(Vector3(-0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f));
 		Vertex v2(Vector3(0.5f, 0.5f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f));
@@ -101,17 +147,18 @@ namespace Engine
 		vertices.push_back(v2);
 		vertices.push_back(v3);
 		vertices.push_back(v4);
-		mesh.CreateVertexBuffer(graphics->GetDevice(), vertices);
+
 		std::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
-		mesh.CreateIndexBuffer(graphics->GetDevice(), indices);
+		mesh->SetMeshData(vertices, indices);
+		model->AddMesh(mesh);
+		model->PrepareRender(graphics.get());
+		return model;
+	}
 
-		std::wstring vsFilename = L"Shaders/SimpleVertexShader.hlsl";
-		std::wstring psFilename = L"Shaders/SimplePixelShader.hlsl";
-		graphics->CreateVertexShader(vsFilename);
-		graphics->CreatePixelShader(psFilename);
-		graphics->Render();
-		graphics->DrawMesh(mesh);
-
-		display->GetSwapChain()->Present(1, 0);
+	std::shared_ptr<Shader> Game::CreateShader(const std::wstring& vertexShaderFilePath, const std::wstring& pixelShaderFilePath)
+	{
+		auto shader = std::make_shared<Shader>();
+		shader->CreateShader(graphics.get(), vertexShaderFilePath, pixelShaderFilePath);
+		return shader;
 	}
 }
