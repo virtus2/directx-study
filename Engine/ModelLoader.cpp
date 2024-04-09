@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ModelLoader.h"
 #include "Model.h"
 
@@ -27,6 +27,7 @@ void ModelLoader::Load(const std::string& filePath, Model* model)
 	}
 	else
 	{
+		// TODO: 기본적인 3d모형 렌더링 되는것 확인한 후 fbx파일 로딩 제대로 되는지 확인
 		if (scene->HasMeshes())
 		{
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++)

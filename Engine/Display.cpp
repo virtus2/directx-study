@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "d3d11.h"
 #include "dxgi1_6.h"
+
 Display::Display()
 {
 }
@@ -101,6 +102,7 @@ void Display::CreateDepthStencilView(int width, int height)
 
 	HRESULT result;
 	result = device->CreateTexture2D(&depthStencilBufferDesc, 0, depthStencilBuffer.GetAddressOf());
+	// TODO: ASSERT 쓸지 그냥 if문 쓸지 결정
 	ASSERT_SUCCEEDED(result);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
