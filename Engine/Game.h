@@ -10,6 +10,7 @@
 
 class Entity;
 class Shader;
+class Material;
 
 namespace Engine
 {
@@ -28,8 +29,12 @@ namespace Engine
 
         std::shared_ptr<Entity> CreateEntity();
         std::shared_ptr<Model> CreateModel(const std::string& filePath);
-        std::shared_ptr<Model> CreateRectangle();
         std::shared_ptr<Shader> CreateShader(const std::wstring& vertexShaderFilePath, const std::wstring& pixelShaderFilePath);
+        std::shared_ptr<Material> CreateMaterial();
+        
+        // 테스트 Primitives
+        std::shared_ptr<Model> CreateRectangle();
+        std::shared_ptr<Model> CreateCube();
 
         Input* GetInput() { return input.get(); }
         Graphics* GetGraphics() { return graphics.get(); }

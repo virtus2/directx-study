@@ -6,10 +6,21 @@
 #include <d3dcompiler.h>
 #include <unordered_map>
 
+#include "Matrix.h"
+
 class Mesh;
 class Model;
 class Shader;
 class Vertex;
+class Material;
+
+struct ConstantBuffer
+{
+	Math::Matrix world;
+	Math::Matrix view;
+	Math::Matrix projection;
+};
+static_assert((sizeof(ConstantBuffer) % 16) == 0, "Constant Buffer size must be 16-byte aligned");
 
 class Graphics
 {
@@ -24,9 +35,12 @@ public:
 	void CreateIndexBuffer(const std::vector<uint32_t>& indices, ID3D11Buffer** outIndexBuffer);
 	void CreateVertexShader(const std::wstring& filePath, ID3D11VertexShader** outVertexShader, ID3D11InputLayout** outInputLayout);
 	void CreatePixelShader(const std::wstring& filePath, ID3D11PixelShader** outPixelShader);
+	void CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outBuffer);
 
 	void SetRasterizerState(bool wireframe = false);
-	void SetShader(Shader* shader);
+	void UseMaterial(Material* material);
+	void UpdateMaterialConstants(Material* material);
+	void UpdateConstantBuffer(void* data, ID3D11Buffer* buffer);
 
 	void ClearColor(float r, float g, float b, float a);
 	void Render();
@@ -41,6 +55,7 @@ public:
 	IDXGIFactory* GetDXGIFactory() { return dxgiFactory.Get(); }
 	ID3D11DeviceContext* GetContext() { return context.Get(); }
 
+	ConstantBuffer constantBufferData;
 private:
 	HWND hWnd = nullptr;
 	Display* display = nullptr;

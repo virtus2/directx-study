@@ -229,16 +229,54 @@ void Graphics::CreatePixelShader(const std::wstring& filePath, ID3D11PixelShader
 	}
 }
 
+void Graphics::CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outBuffer)
+{
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.ByteWidth = size;
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA bufferData = {};
+	bufferData.pSysMem = data;
+
+	HRESULT result = d3dDevice->CreateBuffer(&bufferDesc, nullptr, outBuffer);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
+	}
+}
+
+void Graphics::UpdateConstantBuffer(void* data, ID3D11Buffer* buffer)
+{
+	context->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
+}
+
 void Graphics::SetRasterizerState(bool wireframe)
 {
 	context->RSSetState(wireframe ? wireframeRasterizerState.Get() : rasterizerState.Get());
 }
 
-void Graphics::SetShader(Shader* shader)
+void Graphics::UseMaterial(Material* material)
 {
-	context->IASetInputLayout(shader->GetInputLayout());
-	context->VSSetShader(shader->GetVertexShader(), nullptr, 0);
-	context->PSSetShader(shader->GetPixelShader(), nullptr, 0);
+	auto constantBuffer = material->GetConstantBuffer();
+	context->VSSetConstantBuffers(0, 1, &constantBuffer);
+	context->PSSetConstantBuffers(0, 1, &constantBuffer);
+
+	auto shader = material->GetShader();
+	if (shader)
+	{
+		context->IASetInputLayout(shader->GetInputLayout());
+		context->VSSetShader(shader->GetVertexShader(), nullptr, 0);
+		context->PSSetShader(shader->GetPixelShader(), nullptr, 0);
+	}
+}
+
+void Graphics::UpdateMaterialConstants(Material* material)
+{
+	// TODO: 함수 이름이 올바른가...?
+	material->SetConstantBufferData(this, (void*)(&constantBufferData), sizeof(constantBufferData));
 }
 
 void Graphics::ClearColor(float r, float g, float b, float a)
@@ -248,7 +286,7 @@ void Graphics::ClearColor(float r, float g, float b, float a)
 	auto depthStencilView = display->GetDepthStencilView();
 	context->ClearRenderTargetView(renderTargetView, color);
 	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView); // 초기화 코드에다가 옮길까?
+	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
 void Graphics::Render()

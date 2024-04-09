@@ -15,10 +15,9 @@ void Model::AddMesh(std::shared_ptr<Mesh> mesh)
 	meshes.push_back(mesh);
 }
 
-void Model::AddShader(std::shared_ptr<Shader> shader)
+void Model::AddMaterial(std::shared_ptr<Material> material)
 {
-	// TODO: 쉐이더 관리 어떻게 할지 고민
-	this->shader = shader;
+	this->material = material;
 }
 
 void Model::PrepareRender(Graphics* graphics)
