@@ -10,11 +10,12 @@ public:
     ~MyGame() {}
 
     virtual void BeginRun() override;
-    virtual void OnUpdate() override;
+    virtual void OnUpdate(float deltaTime) override;
 
 private:
 	std::shared_ptr<Entity> entity;
     std::shared_ptr<Model> model;
     std::shared_ptr<Shader> shader;
     std::shared_ptr<Material> material;
+    std::shared_ptr<Camera> camera;
 };

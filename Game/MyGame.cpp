@@ -3,6 +3,8 @@
 // TODO: 엔진 관련 include를 여기에 놓는게 맞을까
 #include "Entity.h"
 #include "ModelLoader.h"
+#include "Camera.h"
+
 #define ZELDA 0
 #define RECTANGLE 0
 #define CUBE 1
@@ -38,9 +40,78 @@ void MyGame::BeginRun()
 	material->SetShader(shader);
 
 	model->AddMaterial(material);
+
+	camera = CreateCamera();
 }
 
-void MyGame::OnUpdate()
+void MyGame::OnUpdate(float deltaTime)
 {
-	Utility::Printf("index count: %d\n", entity->GetModel()->GetMesh(0)->GetIndexCount());
+	auto input = GetInput();
+	/*
+	Vector3 cameraVec(camera->GetPosition());
+	if (input->IsPressed(Input::Key_A))
+	{
+		cameraVec += Vector3(-0.1f, 0.0f, 0.0f);
+		camera->SetPosition(cameraVec);
+	}
+	if (input->IsPressed(Input::Key_S))
+	{
+		cameraVec += Vector3(0.0f, 0.0f, -0.1f);
+		camera->SetPosition(cameraVec);
+	}
+	if (input->IsPressed(Input::Key_D))
+	{
+		cameraVec += Vector3(0.1f, 0.0f, 0.0f);
+		camera->SetPosition(cameraVec);
+	}
+	if (input->IsPressed(Input::Key_W))
+	{
+		cameraVec += Vector3(0.0f, 0.0f, 0.1f);
+		camera->SetPosition(cameraVec);
+	}
+	if (input->IsPressed(Input::Key_Space))
+	{
+		cameraVec += Vector3(0.0f, 0.1f, 0.0f);
+		camera->SetPosition(cameraVec);
+	}
+	if (input->IsPressed(Input::Key_LeftControl))
+	{
+		cameraVec += Vector3(0.0f, -0.1f, 0.0f);
+		camera->SetPosition(cameraVec);
+	}
+	Utility::Printf("%f %f %f\n", cameraVec.x(), cameraVec.y(), cameraVec.z());
+	*/
+
+	Vector3 entityVec(entity->GetPosition());
+	if (input->IsPressed(Input::Key_A))
+	{
+		entityVec += Vector3(-0.1f, 0.0f, 0.0f);
+		entity->SetPosition(entityVec);
+	}
+	if (input->IsPressed(Input::Key_S))
+	{
+		entityVec += Vector3(0.0f, 0.0f, -0.1f);
+		entity->SetPosition(entityVec);
+	}
+	if (input->IsPressed(Input::Key_D))
+	{
+		entityVec += Vector3(0.1f, 0.0f, 0.0f);
+		entity->SetPosition(entityVec);
+	}
+	if (input->IsPressed(Input::Key_W))
+	{
+		entityVec += Vector3(0.0f, 0.0f, 0.1f);
+		entity->SetPosition(entityVec);
+	}
+	if (input->IsPressed(Input::Key_Space))
+	{
+		entityVec += Vector3(0.0f, 0.1f, 0.0f);
+		entity->SetPosition(entityVec);
+	}
+	if (input->IsPressed(Input::Key_LeftControl))
+	{
+		entityVec += Vector3(0.0f, -0.1f, 0.0f);
+		entity->SetPosition(entityVec);
+	}
+	Utility::Printf("%f %f %f\n", entityVec.x(), entityVec.y(), entityVec.z());
 }
