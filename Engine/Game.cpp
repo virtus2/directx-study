@@ -116,8 +116,8 @@ namespace Engine
 		}
 
 		// TODO: 카메라 클래스 만들어서 거기서 값 읽어오기
-		graphics->constantBufferData.world = Math::Matrix::RotationY(degree);
-		degree += 1.0f;
+		graphics->constantBufferData.world = Math::Matrix::RotationY(-degree);
+		degree += (float)1/60;
 		graphics->constantBufferData.projection = Math::Matrix(
 			xScale, 0.0f, 0.0f, 0.0f,
 			0.0f, yScale, 0.0f, 0.0f,
@@ -198,66 +198,36 @@ namespace Engine
 		auto mesh = std::make_shared<Mesh>();
 		float scale = 1.0f;
 		std::vector<Vertex> vertices;
-		/*
-		// 윗면
-		Vertex v1(Vector3(-1.0f, 1.0f, -1.0f) * scale, Vector3(0.0f, 1.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v1);
-		Vertex v2(Vector3(-1.0f, 1.0f, 1.0f) * scale, Vector3(0.0f, 1.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v2);
-		Vertex v3(Vector3(1.0f, 1.0f, 1.0f) * scale, Vector3(0.0f, 1.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v3);
-		Vertex v4(Vector3(1.0f, 1.0f, -1.0f) * scale, Vector3(0.0f, 1.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v4);
-		// 아랫면
-		Vertex v5(Vector3(-1.0f, -1.0f, -1.0f) * scale, Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v5);
-		Vertex v6(Vector3(1.0f, -1.0f, -1.0f) * scale, Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v6);
-		Vertex v7(Vector3(1.0f, -1.0f, 1.0f) * scale, Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v7);
-		Vertex v8(Vector3(-1.0f, -1.0f, 1.0f) * scale, Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v8);
-		// 앞면
-		Vertex v9(Vector3(-1.0f, -1.0f, -1.0f) * scale, Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v9);
-		Vertex v10(Vector3(-1.0f, 1.0f, -1.0f) * scale, Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v10);
-		Vertex v11(Vector3(1.0f, 1.0f, -1.0f) * scale, Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v11);
-		Vertex v12(Vector3(1.0f, -1.0f, -1.0f) * scale, Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v12);
-		// 뒷면
-		Vertex v13(Vector3(-1.0f, -1.0f, 1.0f) * scale, Vector3(0.0f, 0.0f, 1.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v13);
-		Vertex v14(Vector3(1.0f, -1.0f, 1.0f) * scale, Vector3(0.0f, 0.0f, 1.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v14);
-		Vertex v15(Vector3(1.0f, 1.0f, 1.0f) * scale, Vector3(0.0f, 0.0f, 1.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v15);
-		Vertex v16(Vector3(-1.0f, 1.0f, 1.0f) * scale, Vector3(0.0f, 0.0f, 1.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v16);
-		// 왼쪽면
-		Vertex v17(Vector3(-1.0f, -1.0f, -1.0f) * scale, Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v17);
-		Vertex v18(Vector3(-1.0f, 1.0f, 1.0f) * scale, Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v18);
-		Vertex v19(Vector3(-1.0f, 1.0f, 1.0f) * scale, Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v19);
-		Vertex v20(Vector3(-1.0f, -1.0f, -1.0f) * scale, Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v20);
-		// 오른쪽면
-		Vertex v21(Vector3(1.0f, -1.0f, 1.0f) * scale, Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v21);
-		Vertex v22(Vector3(1.0f, -1.0f, -1.0f) * scale, Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v22);
-		Vertex v23(Vector3(1.0f, 1.0f, -1.0f) * scale, Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v23);
-		Vertex v24(Vector3(1.0f, 1.0f, 1.0f) * scale, Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v24);
-		std::vector<uint32_t> indices = { 
-			0,  1,  2,  0,  2,  3,  // 윗면
-			4,  5,  6,  4,  6,  7,  // 아랫면
-			8,  9,  10, 8,  10, 11, // 앞면
-			12, 13, 14, 12, 14, 15, // 뒷면
-			16, 17, 18, 16, 18, 19, // 왼쪽
-			20, 21, 22, 20, 22, 23  // 오른쪽
-		};
-		*/
 
-		// 윗면
-		Vertex v1(Vector3(-0.5f, 0.5f, -0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v1);
-		Vertex v2(Vector3(0.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v2);
-		Vertex v3(Vector3(0.5f, 0.5f, -0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v3);
-		Vertex v4(Vector3(1.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v4);
-		Vertex v5(Vector3(0.5f, 0.5f, 0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v5);
-		Vertex v6(Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v6);
-		Vertex v7(Vector3(-0.5f, 0.5f, 0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v7);
-		Vertex v8(Vector3(0.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v8);
+		Vertex v1(Vector3(-0.5f, 0.5f, -0.5f), Vector3(0.0f, 1.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v1);
+		Vertex v2(Vector3(0.5f, 0.5f, -0.5f), Vector3(0.0f, 1.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v2);
+		Vertex v3(Vector3(0.5f, 0.5f, 0.5f), Vector3(0.0f, 1.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v3);
+		Vertex v4(Vector3(-0.5f, 0.5f, 0.5f), Vector3(0.0f, 1.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v4);
 
-		// 아랫면
-		Vertex v9(Vector3(-0.5f, -0.5f, 0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v9);
-		Vertex v10(Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v10);
-		Vertex v11(Vector3(0.5f, -0.5f, 0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v11);
-		Vertex v12(Vector3(1.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v12);
-		Vertex v13(Vector3(0.5f, -0.5f, -0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v13);
-		Vertex v14(Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v14);
-		Vertex v15(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v15);
-		Vertex v16(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v16);
+		Vertex v5(Vector3(-0.5f, -0.5f, 0.5f), Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v5);
+		Vertex v6(Vector3(0.5f, -0.5f, 0.5f), Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v6);
+		Vertex v7(Vector3(0.5f, -0.5f, -0.5f), Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v7);
+		Vertex v8(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v8);
+
+		Vertex v9(Vector3(0.5f, 0.5f, 0.5f), Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v9);
+		Vertex v10(Vector3(0.5f, 0.5f, -0.5f), Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v10);
+		Vertex v11(Vector3(0.5f, -0.5f, -0.5f), Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v11);
+		Vertex v12(Vector3(0.5f, -0.5f, 0.5f), Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v12);
+
+		Vertex v13(Vector3(-0.5f, 0.5f, -0.5f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v13);
+		Vertex v14(Vector3(-0.5f, 0.5f, 0.5f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v14);
+		Vertex v15(Vector3(-0.5f, -0.5f, 0.5f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v15);
+		Vertex v16(Vector3(-0.5f, -0.5f, -0.5f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v16);
+
+		Vertex v17(Vector3(-0.5f, 0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v17);
+		Vertex v18(Vector3(0.5f, 0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v18);
+		Vertex v19(Vector3(0.5f, -0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v19);
+		Vertex v20(Vector3(-0.5f, -0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v20);
+
+		Vertex v21(Vector3(0.5f, 0.5f, -0.5f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f)); vertices.push_back(v21);
+		Vertex v22(Vector3(-0.5f, 0.5f, -0.5f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f)); vertices.push_back(v22);
+		Vertex v23(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f)); vertices.push_back(v23);
+		Vertex v24(Vector3(0.5f, -0.5f, -0.5f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f)); vertices.push_back(v24);
 
 		std::vector<uint32_t> indices = {
 			0, 1, 2,
@@ -266,17 +236,17 @@ namespace Engine
 			4, 5, 6,
 			4, 6, 7,
 
-			3, 2, 5,
-			3, 5, 4,
+			8, 9, 10,
+			8, 10, 11,
 
-			2, 1, 6,
-			2, 6, 5,
+			12, 13, 14,
+			12, 14, 15,
 
-			1, 7, 6,
-			1, 0, 7,
+			16, 17, 18,
+			16, 18, 19,
 
-			0, 3, 4,
-			0, 4, 7
+			20, 21, 22,
+			20, 22, 23
 		};
 		mesh->SetMeshData(vertices, indices);
 		model->AddMesh(mesh);
