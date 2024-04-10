@@ -13,6 +13,7 @@ class Model;
 class Shader;
 class Vertex;
 class Material;
+class Camera;
 
 struct ConstantBuffer
 {
@@ -40,6 +41,8 @@ public:
 	void SetRasterizerState(bool wireframe = false);
 	void UseMaterial(Material* material);
 	void UpdateMaterialConstants(Material* material);
+	void UpdateWorldMatrix(Math::Matrix world);
+	void UpdateViewProjectionMatrix(Math::Matrix view, Math::Matrix projection);
 	void UpdateConstantBuffer(void* data, ID3D11Buffer* buffer);
 
 	void ClearColor(float r, float g, float b, float a);
@@ -55,7 +58,6 @@ public:
 	IDXGIFactory* GetDXGIFactory() { return dxgiFactory.Get(); }
 	ID3D11DeviceContext* GetContext() { return context.Get(); }
 
-	ConstantBuffer constantBufferData;
 private:
 	HWND hWnd = nullptr;
 	Display* display = nullptr;
@@ -68,6 +70,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeRasterizerState = nullptr;
-	
+
+	ConstantBuffer constantBufferData;
 };
 

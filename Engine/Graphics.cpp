@@ -3,6 +3,7 @@
 #include "Display.h"
 #include "Model.h"
 #include "Mesh.h"
+#include "Camera.h"
 
 Graphics::Graphics()
 {
@@ -256,7 +257,6 @@ void Graphics::UpdateConstantBuffer(void* data, ID3D11Buffer* buffer)
 	context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	memcpy(mappedResource.pData, data, sizeof(constantBufferData));
 	context->Unmap(buffer, 0);
-	// context->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
 }
 
 void Graphics::SetRasterizerState(bool wireframe)
@@ -283,6 +283,19 @@ void Graphics::UpdateMaterialConstants(Material* material)
 {
 	// TODO: 함수 이름이 올바른가...?
 	material->SetConstantBufferData(this, (void*)(&constantBufferData), sizeof(constantBufferData));
+}
+
+void Graphics::UpdateWorldMatrix(Math::Matrix world)
+{
+	// TODO: 월드 행렬은 각 엔티티마다 다르게 설정해야 한다.
+	constantBufferData.world = world.Transpose();
+}
+
+void Graphics::UpdateViewProjectionMatrix(Math::Matrix view, Math::Matrix projection)
+{
+	// Math::Matrix는 Column Major Matrix이므로 Transpose를 해줘야 한다.
+	constantBufferData.view = view.Transpose();
+	constantBufferData.projection = projection.Transpose();
 }
 
 void Graphics::ClearColor(float r, float g, float b, float a)
@@ -315,7 +328,6 @@ void Graphics::DrawMesh(Mesh* mesh)
 void Graphics::DrawModel(Model* model)
 {
 }
-
 
 void Graphics::CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels)
 {

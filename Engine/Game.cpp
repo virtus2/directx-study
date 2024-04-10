@@ -5,6 +5,8 @@
 #include "Window.h"
 #include "Entity.h"
 #include "Vertex.h"
+#include "Camera.h"
+#include "Timer.h"
 
 namespace Engine
 {
@@ -15,6 +17,7 @@ namespace Engine
         window = std::make_unique<Window>();
 		display = std::make_unique<Display>();
 		modelLoader = std::make_unique<ModelLoader>();
+		timer = std::make_unique<Timer>();
 	}
 
 	Game::~Game()
@@ -27,21 +30,18 @@ namespace Engine
 		this->width = width;
 		this->height = height;
 
-		// 윈도우 초기화
 		window->Initialize(hInstance, nCmdShow, L"WindowClass", L"Window", width, height);
-		
-		// 인풋 초기화
+
 		HWND hWnd = window->GetWindowHandle();
 		input->Initialize(hWnd);
 
-		// DirectX 11, 그래픽 관련 초기화
 		graphics->Initialize(display.get(), hWnd, width, height);
 
-		// 디스플레이 초기화
 		display->Initialize(graphics.get(), hWnd, width, height);
 
-		// 모델 로더 초기화
 		modelLoader->Initialize(graphics.get());
+
+		timer->Initialize();
 
 		// 게임 루프
 		isRunning = true;
@@ -66,20 +66,21 @@ namespace Engine
 			{
 				break;
 			}
-			Update();
+			timer->Tick();
+			float deltaTime = timer->GetDeltaTime();
+			Update(deltaTime);
 			Render();
 		}
     }
 
-	void Game::Update()
+	void Game::Update(float deltaTime)
 	{
 		input->Update();
-
+		Utility::Printf("%f\n", deltaTime);
 		// TODO: Delta Time 계산해서 넘겨줘야함
-		OnUpdate();
+		OnUpdate(deltaTime);
 	}
 
-	float degree = 1.0f;
 	void Game::Render()
 	{
 		// 파이프라인 단계는 다음과 같습니다.
@@ -97,43 +98,27 @@ namespace Engine
 		graphics->ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
 		graphics->SetRasterizerState();
 
-		
-		// TODO: 메쉬 렌더링
-		// 테스트 코드
-		float xScale = 1.42814801f;
-		float yScale = 1.42814801f;
-		if (width > height)
+		if (mainCamera)
 		{
-			xScale = yScale *
-				static_cast<float>(height) /
-				static_cast<float>(width);
+			graphics->UpdateViewProjectionMatrix(mainCamera->GetView(), mainCamera->GetProjection());
 		}
 		else
 		{
-			yScale = xScale *
-				static_cast<float>(width) /
-				static_cast<float>(height);
+			// TODO: 메인카메라 없을때 에러 핸들링
 		}
-
-		// TODO: 카메라 클래스 만들어서 거기서 값 읽어오기
-		graphics->constantBufferData.world = Math::Matrix::RotationY(-degree);
-		degree += (float)1/60;
-		graphics->constantBufferData.projection = Math::Matrix(
-			xScale, 0.0f, 0.0f, 0.0f,
-			0.0f, yScale, 0.0f, 0.0f,
-			0.0f, 0.0f, -1.0f, -0.01f,
-			0.0f, 0.0f, -1.0f, 0.0f
-		);
-		graphics->constantBufferData.view = Math::Matrix(
-			-1.00000000f, 0.00000000f, 0.00000000f, 0.00000000f,
-			0.00000000f, 0.89442718f, 0.44721359f, 0.00000000f,
-			0.00000000f, 0.44721359f, -0.89442718f, -2.23606800f,
-			0.00000000f, 0.00000000f, 0.00000000f, 1.00000000f
-		);
 
 		for (const auto& entity : entities)
 		{
+			auto position = entity->GetPosition();
+			auto rotation = entity->GetRotation();
+			auto scale = entity->GetScale();
+
+			// TODO: 월드행렬 계산을 graphics 클래스로 옮기는게 나을수도 있음
+			auto world = XMMatrixScaling(scale.x(), scale.y(), scale.z()) 
+				* XMMatrixRotationRollPitchYaw(rotation.x(), rotation.y(), rotation.z()) 
+				* XMMatrixTranslation(position.x(), position.y(), position.z());
 			auto model = entity->GetModel();
+			graphics->UpdateWorldMatrix(world);
 			if (model)
 			{
 				auto material = model->GetMaterial();
@@ -155,6 +140,16 @@ namespace Engine
 		auto entity = std::make_shared<Entity>();
 		entities.push_back(entity);
 		return entity;
+	}
+
+	std::shared_ptr<Camera> Game::CreateCamera()
+	{
+		auto camera = std::make_shared<Camera>();
+		// 카메라가 메인 카메라 1개밖에 없다고 가정한다.
+		mainCamera = camera;
+		mainCamera->SetViewParameters({ 0.0f, 0.0f, -5.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f });
+		mainCamera->SetProjectionParameters(70.0f, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
+		return camera;
 	}
 
 	std::shared_ptr<Model> Game::CreateModel(const std::string& filePath)
