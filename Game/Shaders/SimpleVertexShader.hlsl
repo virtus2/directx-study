@@ -1,7 +1,6 @@
-cbuffer BasicVertexConstantBuffer : register(b0)
+cbuffer SimpleVertexConstantBuffer : register(b0)
 {
     matrix model;
-    matrix invTranspose;
     matrix view;
     matrix projection;
 };
@@ -24,19 +23,13 @@ VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
     float4 pos = float4(input.pos, 1.0f);
-    output.pos = pos;
-    /*
-    pos = mul(pos, model);
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
-    
-    output.pos = pos;
+    output.pos = mul(pos, model);
+    output.pos = mul(output.pos, view);
+    output.pos = mul(output.pos, projection);
     
     float4 normal = float4(input.normal, 0.0f);
-    output.normal = mul(normal, invTranspose).xyz;
-    output.normal = normalize(output.normal);
-    
+    output.normal = normalize(mul(normal, model));
     output.texCoord = input.texCoord;
-    */
+    
     return output;
 }
