@@ -240,6 +240,8 @@ void Graphics::CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outB
 
 	D3D11_SUBRESOURCE_DATA bufferData = {};
 	bufferData.pSysMem = data;
+	bufferData.SysMemPitch = 0;
+	bufferData.SysMemSlicePitch = 0;
 
 	HRESULT result = d3dDevice->CreateBuffer(&bufferDesc, nullptr, outBuffer);
 	if (FAILED(result))
@@ -250,7 +252,11 @@ void Graphics::CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outB
 
 void Graphics::UpdateConstantBuffer(void* data, ID3D11Buffer* buffer)
 {
-	context->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, data, sizeof(constantBufferData));
+	context->Unmap(buffer, 0);
+	// context->UpdateSubresource(buffer, 0, nullptr, data, 0, 0);
 }
 
 void Graphics::SetRasterizerState(bool wireframe)
