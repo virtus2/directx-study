@@ -293,7 +293,7 @@ void Graphics::UpdateWorldMatrix(Math::Matrix world)
 
 void Graphics::UpdateViewProjectionMatrix(Math::Matrix view, Math::Matrix projection)
 {
-	// Math::Matrix는 Column Major Matrix이므로 Transpose를 해줘야 한다.
+	// Math::Matrix는 Row major Matrix이므로 Column major인 HLSL에서 사용하기 위해 Transpose를 해줘야 한다.
 	constantBufferData.view = view.Transpose();
 	constantBufferData.projection = projection.Transpose();
 }
