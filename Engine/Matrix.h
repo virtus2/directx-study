@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 #include "Vector.h"
 namespace Math
 {
 	class Matrix
 	{
+		// Column-major 4x4 행렬
 	public:
 		Matrix() {}
 		Matrix(FXMMATRIX m) { mat = m; }
@@ -58,6 +59,8 @@ namespace Math
 		INLINE static Matrix OrthographicRH(float width, float height, float nearZ, float farZ) { return XMMatrixOrthographicRH(width, height, nearZ, farZ); }
 		INLINE static Matrix LookAtLH(const Vector3& eye, const Vector3& at, const Vector3& up) { return XMMatrixLookAtLH(eye, at, up); }
 		INLINE static Matrix LookAtRH(const Vector3& eye, const Vector3& at, const Vector3& up) { return XMMatrixLookAtRH(eye, at, up); }
+		INLINE static Matrix LookToLH(const Vector3& eye, const Vector3& dir, const Vector3& up) { return XMMatrixLookToLH(eye, dir, up); }
+		INLINE static Matrix LookToRH(const Vector3& eye, const Vector3& dir, const Vector3& up) { return XMMatrixLookToRH(eye, dir, up); }
 
 	protected:
 		XMMATRIX mat;

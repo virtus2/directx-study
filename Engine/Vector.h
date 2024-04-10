@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define INLINE __forceinline
 
@@ -13,7 +13,7 @@ namespace Math
 	class Vector3
 	{
 	public:
-		INLINE Vector3() {}
+		INLINE Vector3() { vec = XMVectorZero(); }
 		INLINE Vector3(FXMVECTOR v) { vec = v; }
 		INLINE Vector3(float x, float y, float z) { vec = XMVectorSet(x, y, z, 0.0f); }
 		INLINE Vector3(const Vector3& v) { vec = v; }
@@ -44,6 +44,14 @@ namespace Math
 		INLINE Vector3 Normalize() const { return XMVector3Normalize(vec); }
 		INLINE Vector3 Clamp(const Vector3& vmin, const Vector3& vmax) const { return XMVectorClamp(vec, vmin, vmax); }
 
+		INLINE float x() const { return XMVectorGetX(vec); }
+		INLINE float y() const { return XMVectorGetY(vec); }
+		INLINE float z() const { return XMVectorGetZ(vec); }
+
+		INLINE static Vector3 Zero() { return XMVectorZero(); }
+		INLINE static Vector3 One() { return Vector3(1.0f, 1.0f, 1.0f); }
+
+
 	protected:
 		XMVECTOR vec;
 	};
@@ -52,7 +60,7 @@ namespace Math
 	class Vector4
 	{
 	public:
-		INLINE Vector4() {}
+		INLINE Vector4() { vec = XMVectorZero(); }
 		INLINE Vector4(FXMVECTOR v) { vec = v; }
 		INLINE Vector4(float x, float y, float z, float w) { vec = XMVectorSet(x, y, z, w); }
 		INLINE Vector4(const Vector4& v) { vec = v; }
@@ -84,14 +92,17 @@ namespace Math
 		INLINE Vector4 Normalize() const { return XMVector4Normalize(vec); }
 		INLINE Vector4 Clamp(const Vector4& vmin, const Vector4& vmax) const { return XMVectorClamp(vec, vmin, vmax); }
 
+		INLINE static Vector4 Zero() { return Vector4(0.0f, 0.0f, 0.0f, 0.0f); }
+
 	protected:
+		// TODO: Vector3인데 XMVECTOR를 써도 될까
 		XMVECTOR vec;
 	};
 
 	class Vector2
 	{
 	public:
-INLINE Vector2() {}
+		INLINE Vector2() { vec = XMVectorZero(); }
 		INLINE Vector2(FXMVECTOR v) { vec = v; }
 		INLINE Vector2(float x, float y) { vec = XMVectorSet(x, y, 0.0f, 0.0f); }
 		INLINE Vector2(const Vector2& v) { vec = v; }
@@ -123,6 +134,7 @@ INLINE Vector2() {}
 		INLINE Vector2 Clamp(const Vector2& vmin, const Vector2& vmax) const { return XMVectorClamp(vec, vmin, vmax); }
 
 	protected:
+		// TODO: Vector2인데 XMVECTOR를 써도 될까
 		XMVECTOR vec;
 	};
 }
