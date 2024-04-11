@@ -11,6 +11,7 @@ class Shader;
 class Material;
 class Camera;
 class Timer;
+class Texture;
 
 namespace Engine
 {
@@ -32,6 +33,7 @@ namespace Engine
         std::shared_ptr<Model> CreateModel(const std::string& filePath);
         std::shared_ptr<Shader> CreateShader(const std::wstring& vertexShaderFilePath, const std::wstring& pixelShaderFilePath);
         std::shared_ptr<Material> CreateMaterial();
+        std::shared_ptr<Texture> CreateTexture(const std::wstring& filePath);
         
         // 테스트 Primitives
         std::shared_ptr<Model> CreateRectangle();

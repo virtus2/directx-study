@@ -7,6 +7,7 @@
 #include "Vertex.h"
 #include "Camera.h"
 #include "Timer.h"
+#include "Texture.h"
 
 namespace Engine
 {
@@ -126,7 +127,7 @@ namespace Engine
 				{
 					graphics->UpdateMaterialConstants(material.get());
 					graphics->UseMaterial(material.get());
-					graphics->DrawMesh(model->GetMesh(0).get());
+					graphics->DrawModel(model.get());
 				}
 			}
 		}
@@ -163,6 +164,26 @@ namespace Engine
 		// 사실 함수 이름도 마음에 안들어...
 		model->PrepareRender(graphics.get());
 		return model;
+	}
+
+	std::shared_ptr<Shader> Game::CreateShader(const std::wstring& vertexShaderFilePath, const std::wstring& pixelShaderFilePath)
+	{
+		auto shader = std::make_shared<Shader>();
+		shader->CreateShader(graphics.get(), vertexShaderFilePath, pixelShaderFilePath);
+		return shader;
+	}
+
+	std::shared_ptr<Material> Game::CreateMaterial()
+	{
+		auto material = std::make_shared<Material>();
+		return material;
+	}
+
+	std::shared_ptr<Texture> Game::CreateTexture(const std::wstring& filePath)
+	{
+		auto texture = std::make_shared<Texture>();
+		texture->CreateTexture(graphics.get(), filePath);
+		return texture;
 	}
 
 	std::shared_ptr<Model> Game::CreateRectangle()
@@ -247,17 +268,5 @@ namespace Engine
 		model->AddMesh(mesh);
 		model->PrepareRender(graphics.get());
 		return model;
-	}
-
-	std::shared_ptr<Shader> Game::CreateShader(const std::wstring& vertexShaderFilePath, const std::wstring& pixelShaderFilePath)
-	{
-		auto shader = std::make_shared<Shader>();
-		shader->CreateShader(graphics.get(), vertexShaderFilePath, pixelShaderFilePath);
-		return shader;
-	}
-	std::shared_ptr<Material> Game::CreateMaterial()
-	{
-		auto material = std::make_shared<Material>();
-		return material;
 	}
 }

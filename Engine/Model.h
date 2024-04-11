@@ -15,8 +15,10 @@ public:
 
 	std::shared_ptr<Material> GetMaterial() { return material; }
 	std::shared_ptr<Mesh> GetMesh(int index) { return meshes[index]; }
+	int GetMeshCount() { return meshCount; }
 
 private:
 	std::vector<std::shared_ptr<Mesh>> meshes;
-	std::shared_ptr<Material> material;
+	std::shared_ptr<Material> material = nullptr;
+	int meshCount = 0;
 };

@@ -35,6 +35,7 @@ public:
 	void CreateVertexShader(const std::wstring& filePath, ID3D11VertexShader** outVertexShader, ID3D11InputLayout** outInputLayout);
 	void CreatePixelShader(const std::wstring& filePath, ID3D11PixelShader** outPixelShader);
 	void CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outBuffer);
+	void CreateTexture(const std::wstring& filePath, ID3D11Texture2D** outTexture, ID3D11ShaderResourceView** outShaderResourceView, ID3D11SamplerState** outSamplerState);
 
 	void SetRasterizerState(bool wireframe = false);
 	void UseMaterial(Material* material);

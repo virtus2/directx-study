@@ -13,6 +13,7 @@ Model::~Model()
 void Model::AddMesh(std::shared_ptr<Mesh> mesh)
 {
 	meshes.push_back(mesh);
+	meshCount++;
 }
 
 void Model::AddMaterial(std::shared_ptr<Material> material)

@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "DirectXTex.h"
 #include "Graphics.h"
 #include "Display.h"
 #include "Model.h"
@@ -251,6 +252,62 @@ void Graphics::CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outB
 	}
 }
 
+void Graphics::CreateTexture(const std::wstring& filePath, ID3D11Texture2D** outTexture, ID3D11ShaderResourceView** outShaderResourceView, ID3D11SamplerState** outSamplerState)
+{
+	// TODO: 파일 형식 핸들링
+	DirectX::ScratchImage image;
+	HRESULT result = DirectX::LoadFromWICFile(filePath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image);
+	if (FAILED(result))
+	{
+		// TODO: 에러핸들링을 좀 더 깔쌈하게 하는 법은 없을까
+		// bool 반환하는 방법도 있을듯. 한번 고치기 시작하면 다른데도 다 통일하자...
+		MessageBox(nullptr, L"Failed to load texture", L"Error", MB_OK);
+		return;
+	}
+	
+	DirectX::TexMetadata metadata = image.GetMetadata();
+	DirectX::ScratchImage mipChain;
+	result = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_DEFAULT, 0, mipChain);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to generate mipmaps", L"Error", MB_OK);
+		return;
+	}
+
+	result = DirectX::CreateTexture(d3dDevice.Get(), mipChain.GetImages(), mipChain.GetImageCount(), mipChain.GetMetadata(), (ID3D11Resource**)outTexture);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create texture", L"Error", MB_OK);
+		return;	
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
+	shaderResourceViewDesc.Format = metadata.format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = (UINT)mipChain.GetMetadata().mipLevels;
+	result = d3dDevice->CreateShaderResourceView(*outTexture, &shaderResourceViewDesc, outShaderResourceView);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create shader resource view", L"Error", MB_OK);
+		return;
+	}
+
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = (FLOAT)mipChain.GetMetadata().mipLevels;
+	result = d3dDevice->CreateSamplerState(&samplerDesc, outSamplerState);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create sampler state", L"Error", MB_OK);
+		return;
+	}
+}
+
 void Graphics::UpdateConstantBuffer(void* data, ID3D11Buffer* buffer)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -314,7 +371,6 @@ void Graphics::Render()
 
 void Graphics::DrawMesh(Mesh* mesh)
 {
-	// TODO: 메쉬를 그린다.
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	auto vertexBuffer = mesh->GetVertexBuffer();
@@ -327,6 +383,19 @@ void Graphics::DrawMesh(Mesh* mesh)
 
 void Graphics::DrawModel(Model* model)
 {
+	int count = model->GetMeshCount();
+	for (int i = 0; i < count; i++)
+	{
+		auto mesh = model->GetMesh(i);
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		auto vertexBuffer = mesh->GetVertexBuffer();
+		auto indexBuffer = mesh->GetIndexBuffer();
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		context->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+	}
 }
 
 void Graphics::CheckMultisampleQualityLevels(UINT sampleCount, UINT& numQualityLevels)
