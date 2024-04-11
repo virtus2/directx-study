@@ -5,9 +5,9 @@
 #include "ModelLoader.h"
 #include "Camera.h"
 
-#define ZELDA 0
+#define ZELDA 1
 #define RECTANGLE 0
-#define CUBE 1
+#define CUBE 0
 
 void MyGame::BeginRun()
 {
@@ -18,6 +18,7 @@ void MyGame::BeginRun()
 	std::string modelPath = "Models/zeldaPosed001/zeldaPosed001.fbx";
 	model = CreateModel(modelPath);
 	entity->SetModel(model);
+	entity->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 #endif
  
 #if RECTANGLE==1
@@ -113,5 +114,4 @@ void MyGame::OnUpdate(float deltaTime)
 		entityVec += Vector3(0.0f, -0.1f, 0.0f);
 		entity->SetPosition(entityVec);
 	}
-	Utility::Printf("%f %f %f\n", entityVec.x(), entityVec.y(), entityVec.z());
 }
