@@ -1,6 +1,4 @@
 ﻿#pragma once
-
-#include "pch.h"
 #include "Input.h"
 #include "Graphics.h"
 #include "Window.h"

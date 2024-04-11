@@ -15,8 +15,6 @@ public:
 	std::shared_ptr<Shader> GetShader() { return shader; }
 	ID3D11Buffer* GetConstantBuffer() { return constantBuffer.Get(); }
 
-
-
 private:
 	void CreateConstantBuffer(Graphics* graphics, void* data, size_t size);
 	void UpdateConstantBuffer(Graphics* graphics, void* data, size_t size);
