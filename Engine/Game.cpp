@@ -156,8 +156,8 @@ namespace Engine
 	std::shared_ptr<Model> Game::CreateModel(const std::string& filePath)
 	{
 		// TODO: filePath 타입을 wstring으로 바꾼다.
-		auto model = std::make_shared<Model>();
-		modelLoader->Load(filePath, model.get());
+		// auto model = std::make_shared<Model>();
+		auto model = modelLoader->Load(filePath);
 
 		// TODO: 모델 생성 타이밍과 렌더링 준비 타이밍을 분리한다.
 		// 지금은 모델을 생성하자마자 바로 버텍스 버퍼, 인덱스 버퍼를 만들어주고 있다.

@@ -1,11 +1,12 @@
 #pragma once
 #include <d3d11.h>
 #include "Vertex.h"
-
+#include "Texture.h"
 class Graphics;
 
 class Mesh
 {
+    friend class ModelLoader;
 public:
 	Mesh();
 	~Mesh();
@@ -18,6 +19,7 @@ public:
     unsigned int GetIndexCount() const { return indexCount; }
 
 private:
+
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -26,9 +28,6 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexConstantBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> pixelConstantBuffer;
-
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureResourceView;
 
     unsigned int indexCount = 0;
 };

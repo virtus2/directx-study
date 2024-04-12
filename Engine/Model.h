@@ -5,6 +5,7 @@
 
 class Model
 {
+	friend class ModelLoader;
 public:
 	Model();
 	~Model();
