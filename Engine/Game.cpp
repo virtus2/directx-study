@@ -122,13 +122,7 @@ namespace Engine
 			graphics->UpdateWorldMatrix(world);
 			if (model)
 			{
-				auto material = model->GetMaterial();
-				if (material)
-				{
-					graphics->UpdateMaterialConstants(material.get());
-					graphics->UseMaterial(material.get());
-					graphics->DrawModel(model.get());
-				}
+				graphics->DrawModel(model.get());
 			}
 		}
 
@@ -203,7 +197,8 @@ namespace Engine
 
 		std::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
 		mesh->SetMeshData(vertices, indices);
-		model->AddMesh(mesh);
+		std::string meshName("Rectangle");
+		model->AddMesh(mesh, meshName);
 		model->PrepareRender(graphics.get());
 		return model;
 	}
@@ -265,7 +260,8 @@ namespace Engine
 			20, 22, 23
 		};
 		mesh->SetMeshData(vertices, indices);
-		model->AddMesh(mesh);
+		std::string meshName("Cube");
+		model->AddMesh(mesh, meshName);
 		model->PrepareRender(graphics.get());
 		return model;
 	}

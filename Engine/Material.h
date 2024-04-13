@@ -13,8 +13,12 @@ public:
 	Material();
 	~Material();
 
+	void LoadTexture(Graphics* graphics);
+
 	void SetConstantBufferData(Graphics* graphics, void* data, size_t size);
 	void SetShader(std::shared_ptr<Shader> shader) { this->shader = shader; }
+
+	std::shared_ptr<Texture> GetTexture(Texture::TextureType type) { return textures[type]; }
 	std::shared_ptr<Shader> GetShader() { return shader; }
 	ID3D11Buffer* GetConstantBuffer() { return constantBuffer.Get(); }
 

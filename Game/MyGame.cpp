@@ -36,11 +36,11 @@ void MyGame::BeginRun()
 	const std::wstring vertexShaderPath = L"Shaders/SimpleVertexShader.hlsl";
 	const std::wstring pixelShaderPath = L"Shaders/SimplePixelShader.hlsl";
 	shader = CreateShader(vertexShaderPath, pixelShaderPath);
-	
-	material = CreateMaterial();
-	material->SetShader(shader);
-
-	model->AddMaterial(material);
+	auto meshes = model->GetMeshes();
+	for (auto& mesh : meshes)
+	{
+		mesh->GetMaterial()->SetShader(shader);
+	}
 
 	camera = CreateCamera();
 }

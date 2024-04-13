@@ -33,7 +33,11 @@ public:
 	~Texture();
 
 	void CreateTexture(Graphics* graphics, const std::wstring& filePath);
+	
 	ID3D11ShaderResourceView* GetShaderResourceView() { return shaderResourceView.Get(); }
+	ID3D11SamplerState* GetSamplerState() { return samplerState.Get(); }
+	ID3D11Texture2D* GetTexture() { return texture.Get(); }
+
 
 private:
 	std::string filePath;

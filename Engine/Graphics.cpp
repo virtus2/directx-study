@@ -334,6 +334,19 @@ void Graphics::UseMaterial(Material* material)
 		context->VSSetShader(shader->GetVertexShader(), nullptr, 0);
 		context->PSSetShader(shader->GetPixelShader(), nullptr, 0);
 	}
+
+	auto diffuse = material->GetTexture(Texture::TextureType::Diffuse);
+	if (diffuse)
+	{
+		auto texture = diffuse->GetTexture();
+		auto shaderResourceView = diffuse->GetShaderResourceView();
+		auto samplerState = diffuse->GetSamplerState();
+
+		context->VSSetSamplers(0, 1, &samplerState);
+		context->VSSetShaderResources(0, 1, &shaderResourceView);
+		context->PSSetSamplers(0, 1, &samplerState);
+		context->PSSetShaderResources(0, 1, &shaderResourceView);
+	}
 }
 
 void Graphics::UpdateMaterialConstants(Material* material)
@@ -383,12 +396,17 @@ void Graphics::DrawMesh(Mesh* mesh)
 
 void Graphics::DrawModel(Model* model)
 {
-	int count = model->GetMeshCount();
+	auto meshes = model->GetMeshes();
+	int count = meshes.size();
 	for (int i = 0; i < count; i++)
 	{
-		auto mesh = model->GetMesh(i);
+		auto mesh = meshes[i];
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
+		auto material = mesh->GetMaterial();
+		UpdateMaterialConstants(material.get());
+		UseMaterial(material.get());
+
 		auto vertexBuffer = mesh->GetVertexBuffer();
 		auto indexBuffer = mesh->GetIndexBuffer();
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

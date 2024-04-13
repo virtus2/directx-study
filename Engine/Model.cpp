@@ -10,21 +10,26 @@ Model::~Model()
 {
 }
 
-void Model::AddMesh(std::shared_ptr<Mesh> mesh)
+std::vector<std::shared_ptr<Mesh>> Model::GetMeshes()
 {
-	meshes.push_back(mesh);
-	meshCount++;
-}
-
-void Model::AddMaterial(std::shared_ptr<Material> material)
-{
-	this->material = material;
+	std::vector<std::shared_ptr<Mesh>> meshes;
+	for (auto& mesh : meshMap)
+	{
+		meshes.push_back(mesh.second);
+	}
+	return meshes;
 }
 
 void Model::PrepareRender(Graphics* graphics)
 {
-	for (auto& mesh : meshes)
+	for (auto& mesh : meshMap)
 	{
-		mesh->PrepareRender(graphics);
+		mesh.second->PrepareRender(graphics);
 	}
+}
+
+void Model::AddMesh(std::shared_ptr<Mesh> mesh, std::string& meshName)
+{
+	meshMap.insert({ meshName, mesh });
+	meshCount++;
 }
