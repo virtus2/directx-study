@@ -29,8 +29,5 @@ private:
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 
-    Microsoft::WRL::ComPtr<ID3D11Buffer> vertexConstantBuffer;
-    Microsoft::WRL::ComPtr<ID3D11Buffer> pixelConstantBuffer;
-
     unsigned int indexCount = 0;
 };

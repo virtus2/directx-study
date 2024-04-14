@@ -40,9 +40,8 @@ namespace Engine
         std::shared_ptr<Model> CreateCube();
 
         Input* GetInput() { return input.get(); }
-        Graphics* GetGraphics() { return graphics.get(); }
-        Window* GetWindow() { return window.get(); }
-        Display* GetDisplay() { return display.get(); }
+        std::shared_ptr<Camera> GetMainCamera() { return mainCamera; }
+        std::vector<std::shared_ptr<Entity>> GetEntities() { return entities; }
 
     protected:
         int width;
@@ -59,5 +58,8 @@ namespace Engine
         std::unique_ptr<Display> display;
         std::unique_ptr<ModelLoader> modelLoader;
         std::unique_ptr<Timer> timer;
+
+        std::unordered_map<std::string, std::shared_ptr<Entity>> entityByShaderName;
+
     };
 }

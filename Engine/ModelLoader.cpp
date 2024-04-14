@@ -94,6 +94,7 @@ void ModelLoader::ProcessMaterial(aiMaterial* material, const std::shared_ptr<Mo
 {
 	auto newMaterial = std::make_shared<Material>();
 	model->meshMap[meshName]->material = newMaterial;
+	std::string materialName = material->GetName().C_Str();
 
 	ProcessTexture(material, aiTextureType_DIFFUSE, model, meshName);
 	ProcessTexture(material, aiTextureType_SPECULAR, model, meshName);

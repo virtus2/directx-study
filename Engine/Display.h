@@ -8,7 +8,6 @@ public:
 	~Display();
 
 	int Initialize(Graphics* graphics, HWND hWnd, int width, int height);
-	void SetViewport(int width, int height);
 
 	IDXGISwapChain* GetSwapChain() { return swapChain.Get(); }
 	ID3D11RenderTargetView* GetRenderTargetView() { return renderTargetView.Get(); }
@@ -17,12 +16,6 @@ public:
 private:
 	HWND hWnd = nullptr;
 	Graphics* graphics = nullptr;
-
-	void CreateSwapChain(HWND hWnd, int width, int height);
-	void CreateRenderTargetView();
-	void CreateRasterizerState();
-	void CreateDepthStencilView(int width, int height);
-	void CreateDepthStencilState();
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView = nullptr;

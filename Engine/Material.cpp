@@ -40,5 +40,5 @@ void Material::CreateConstantBuffer(Graphics* graphics, void* data, size_t size)
 
 void Material::UpdateConstantBuffer(Graphics* graphics, void* data, size_t size)
 {
-	graphics->UpdateConstantBuffer(data, constantBuffer.Get());
+	// graphics->UpdateConstantBuffer(data, constantBuffer.Get());
 }

@@ -77,6 +77,13 @@ namespace Engine
 	void Game::Update(float deltaTime)
 	{
 		input->Update();
+
+		if (mainCamera)
+		{
+			mainCamera->Update(deltaTime);
+		}
+
+
 		Utility::Printf("%f\n", deltaTime);
 		// TODO: Delta Time 계산해서 넘겨줘야함
 		OnUpdate(deltaTime);
@@ -84,48 +91,8 @@ namespace Engine
 
 	void Game::Render()
 	{
-		// 파이프라인 단계는 다음과 같습니다.
-		// Input Assembler 
-		// Vertex Shader 
-		// Hull Shader
-		// Tessellator
-		// Domain Shader
-		// Geometry Shader
-		// Rasterizer
-		// Pixel Shader
-		// Output Merger
-
-		display->SetViewport(width, height);
-		graphics->ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
-		graphics->SetRasterizerState();
-
-		if (mainCamera)
-		{
-			graphics->UpdateViewProjectionMatrix(mainCamera->GetView(), mainCamera->GetProjection());
-		}
-		else
-		{
-			// TODO: 메인카메라 없을때 에러 핸들링
-		}
-
-		for (const auto& entity : entities)
-		{
-			auto position = entity->GetPosition();
-			auto rotation = entity->GetRotation();
-			auto scale = entity->GetScale();
-
-			// TODO: 월드행렬 계산을 graphics 클래스로 옮기는게 나을수도 있음
-			auto world = XMMatrixScaling(scale.x(), scale.y(), scale.z()) 
-				* XMMatrixRotationRollPitchYaw(rotation.x(), rotation.y(), rotation.z()) 
-				* XMMatrixTranslation(position.x(), position.y(), position.z());
-			auto model = entity->GetModel();
-			graphics->UpdateWorldMatrix(world);
-			if (model)
-			{
-				graphics->DrawModel(model.get());
-			}
-		}
-
+		// graphics->SetViewport(width, height);
+		graphics->Render(this);
 		display->GetSwapChain()->Present(1, 0);
 	}
 

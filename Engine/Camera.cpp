@@ -7,11 +7,14 @@ Camera::Camera()
 	lookAt = Math::Vector3(0.0f, 0.0f, 0.0f);
 	view = Math::Matrix::Identity();
 	projection = Math::Matrix::Identity();
+	cameraConstantBufferData.view = {};
+	cameraConstantBufferData.projection = {};
 }
 
 void Camera::Update(float deltaTime)
 {
-	
+	cameraConstantBufferData.view = view.Transpose();
+	cameraConstantBufferData.projection = projection.Transpose();
 }
 
 void Camera::SetPosition(Math::Vector3 position)

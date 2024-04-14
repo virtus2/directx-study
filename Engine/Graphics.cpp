@@ -1,10 +1,14 @@
 ﻿#include "pch.h"
 #include "DirectXTex.h"
+#include "dxgi1_6.h"
 #include "Graphics.h"
+
+#include "Game.h"
 #include "Display.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "Entity.h"
 
 Graphics::Graphics()
 {
@@ -49,7 +53,6 @@ int Graphics::Initialize(Display* display, HWND hWnd, int width, int height)
 	d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	CreateRasterizerState();
 
@@ -73,6 +76,120 @@ void Graphics::CreateRasterizerState()
 	d3dDevice->CreateRasterizerState(&rasterizerDesc, &wireframeRasterizerState);
 }
 
+void Graphics::SetRasterizerState(bool wireframe)
+{
+	context->RSSetState(wireframe ? wireframeRasterizerState.Get() : rasterizerState.Get());
+}
+
+void Graphics::CreateSwapChain(HWND hWnd, int width, int height, IDXGISwapChain** outSwapChain)
+{
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	swapChainDesc.BufferDesc.Width = width;
+	swapChainDesc.BufferDesc.Height = height;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferCount = 2; // 더블 버퍼
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.OutputWindow = hWnd;
+	swapChainDesc.Windowed = TRUE;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	// TODO: 멀티샘플링 지원
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+
+	Microsoft::WRL::ComPtr<IDXGISwapChain> dxgiSwapChain;
+	HRESULT result = dxgiFactory->CreateSwapChain(d3dDevice.Get(), &swapChainDesc, outSwapChain);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create swap chain", L"Error", MB_OK);
+	}
+}
+
+void Graphics::CreateRenderTargetView(IDXGISwapChain* swapChain, ID3D11RenderTargetView** outRenderTargetView)
+{
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+	HRESULT result = swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to get back buffer", L"Error", MB_OK);
+		return;
+	}
+
+	result = d3dDevice->CreateRenderTargetView(backBuffer.Get(), nullptr, outRenderTargetView);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create render target view", L"Error", MB_OK);
+		return;
+	}
+	backBuffer->Release();
+}
+
+void Graphics::CreateDepthStencilView(int width, int height, ID3D11DepthStencilView** outDepthStencilView)
+{
+	D3D11_TEXTURE2D_DESC depthStencilBufferDesc;
+	depthStencilBufferDesc.Width = width;
+	depthStencilBufferDesc.Height = height;
+	depthStencilBufferDesc.MipLevels = 1;
+	depthStencilBufferDesc.ArraySize = 1;
+	depthStencilBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	// TODO: 멀티샘플링 지원
+	depthStencilBufferDesc.SampleDesc.Count = 1;
+	depthStencilBufferDesc.SampleDesc.Quality = 0;
+	depthStencilBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilBufferDesc.CPUAccessFlags = 0;
+	depthStencilBufferDesc.MiscFlags = 0;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
+	HRESULT result = d3dDevice->CreateTexture2D(&depthStencilBufferDesc, 0, depthStencilBuffer.GetAddressOf());
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create depth stencil buffer", L"Error", MB_OK);
+	}
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	depthStencilViewDesc.Format = depthStencilBufferDesc.Format;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	result = d3dDevice->CreateDepthStencilView(depthStencilBuffer.Get(), &depthStencilViewDesc, outDepthStencilView);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create depth stencil view", L"Error", MB_OK);
+	}
+}
+
+void Graphics::CreateDepthStencilState(ID3D11DepthStencilState** outDepthStencilState)
+{
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+
+	HRESULT result = d3dDevice->CreateDepthStencilState(&depthStencilDesc, outDepthStencilState);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create depth stencil state", L"Error", MB_OK);
+	}
+}
+
+void Graphics::SetViewport(int width, int height)
+{
+	// 래스터라이저에 뷰포트를 설정합니다.
+	D3D11_VIEWPORT viewport;
+	viewport.Width = static_cast<float>(width);
+	viewport.Height = static_cast<float>(height);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	context->RSSetViewports(1, &viewport);
+}
+
 void Graphics::CreateVertexBuffer(const std::vector<Vertex>& vertices, ID3D11Buffer** outVertexBuffer)
 {
 	D3D11_BUFFER_DESC bufferDesc = {};
@@ -93,7 +210,6 @@ void Graphics::CreateVertexBuffer(const std::vector<Vertex>& vertices, ID3D11Buf
 		Utility::Print("Failed to create vertex buffer");
 	}
 }
-
 
 void Graphics::CreateIndexBuffer(const std::vector<uint32_t>& indices, ID3D11Buffer** outIndexBuffer)
 {
@@ -245,7 +361,7 @@ void Graphics::CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outB
 	bufferData.SysMemPitch = 0;
 	bufferData.SysMemSlicePitch = 0;
 
-	HRESULT result = d3dDevice->CreateBuffer(&bufferDesc, nullptr, outBuffer);
+	HRESULT result = d3dDevice->CreateBuffer(&bufferDesc, &bufferData, outBuffer);
 	if (FAILED(result))
 	{
 		MessageBox(nullptr, L"Failed to create constant buffer", L"Error", MB_OK);
@@ -308,25 +424,8 @@ void Graphics::CreateTexture(const std::wstring& filePath, ID3D11Texture2D** out
 	}
 }
 
-void Graphics::UpdateConstantBuffer(void* data, ID3D11Buffer* buffer)
-{
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	memcpy(mappedResource.pData, data, sizeof(constantBufferData));
-	context->Unmap(buffer, 0);
-}
-
-void Graphics::SetRasterizerState(bool wireframe)
-{
-	context->RSSetState(wireframe ? wireframeRasterizerState.Get() : rasterizerState.Get());
-}
-
 void Graphics::UseMaterial(Material* material)
 {
-	auto constantBuffer = material->GetConstantBuffer();
-	context->VSSetConstantBuffers(0, 1, &constantBuffer);
-	context->PSSetConstantBuffers(0, 1, &constantBuffer);
-
 	auto shader = material->GetShader();
 	if (shader)
 	{
@@ -347,24 +446,14 @@ void Graphics::UseMaterial(Material* material)
 	}
 }
 
-void Graphics::UpdateMaterialConstants(Material* material)
+void Graphics::UpdateConstantBuffer(void* data, size_t size, ID3D11Buffer* buffer)
 {
-	// TODO: 함수 이름이 올바른가...?
-	material->SetConstantBufferData(this, (void*)(&constantBufferData), sizeof(constantBufferData));
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	memcpy(mappedResource.pData, data, size);
+	context->Unmap(buffer, 0);
 }
 
-void Graphics::UpdateWorldMatrix(Math::Matrix world)
-{
-	// TODO: 월드 행렬은 각 엔티티마다 다르게 설정해야 한다.
-	constantBufferData.world = world.Transpose();
-}
-
-void Graphics::UpdateViewProjectionMatrix(Math::Matrix view, Math::Matrix projection)
-{
-	// Math::Matrix는 Row major Matrix이므로 Column major인 HLSL에서 사용하기 위해 Transpose를 해줘야 한다.
-	constantBufferData.view = view.Transpose();
-	constantBufferData.projection = projection.Transpose();
-}
 
 void Graphics::ClearColor(float r, float g, float b, float a)
 {
@@ -376,8 +465,111 @@ void Graphics::ClearColor(float r, float g, float b, float a)
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
-void Graphics::Render()
+void Graphics::Render(Engine::Game* game)
 {
+	// 파이프라인 단계는 다음과 같습니다.
+	// Input Assembler 
+	// Vertex Shader 
+	// Hull Shader
+	// Tessellator
+	// Domain Shader
+	// Geometry Shader
+	// Rasterizer
+	// Pixel Shader
+	// Output Merger
+
+	ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
+	SetRasterizerState();
+
+	auto mainCamera = game->GetMainCamera();
+	if (mainCamera)
+	{
+		// 카메라 관련된 상수 버퍼를 갱신합니다.
+		auto cameraConstantBuffer = mainCamera->GetCameraConstantBuffer();
+		auto cameraConstantBufferData = mainCamera->GetCameraConstantBufferData();
+		auto cameraConstantBufferSize = mainCamera->GetCameraConstantBufferSize();
+		// TODO: 굳이 분기 안타고 미리 만들어놓는게 나을지도... 메인카메라 변경될경우 버퍼 만들어주고 해제하면 될거같음
+		if (cameraConstantBuffer)
+		{
+			UpdateConstantBuffer(cameraConstantBufferData, cameraConstantBufferSize, cameraConstantBuffer);
+		}
+		else
+		{
+			CreateConstantBuffer(cameraConstantBufferData, cameraConstantBufferSize, &cameraConstantBuffer);
+		}
+		context->VSSetConstantBuffers(0, 1, &cameraConstantBuffer);
+		context->PSSetConstantBuffers(0, 1, &cameraConstantBuffer);
+
+	}
+	else
+	{
+		// TODO: 메인카메라 없을때 에러 핸들링
+	}
+	
+
+	auto entities = game->GetEntities();
+	for (const auto& entity : entities)
+	{
+		// 월드 행렬을 갱신합니다.
+		auto position = entity->GetPosition();
+		auto rotation = entity->GetRotation();
+		auto scale = entity->GetScale();
+
+		auto world = XMMatrixScaling(scale.x(), scale.y(), scale.z())
+			* XMMatrixRotationRollPitchYaw(rotation.x(), rotation.y(), rotation.z())
+			* XMMatrixTranslation(position.x(), position.y(), position.z());
+
+		auto objectConstantBuffer = entity->GetObjectConstantBuffer();
+		auto objectConstantBufferData = entity->GetObjectConstantBufferData();
+		objectConstantBufferData->world = XMMatrixTranspose(world);
+		auto objectConstantBufferSize = entity->GetObjectConstantBufferSize();
+		// TODO: 굳이 분기 안타고 미리 만들어놓는게 나을지도... 
+		if (objectConstantBuffer)
+		{
+			UpdateConstantBuffer(objectConstantBufferData, objectConstantBufferSize, objectConstantBuffer);
+		}
+		else
+		{
+			CreateConstantBuffer(objectConstantBufferData, objectConstantBufferSize, &objectConstantBuffer);
+		}
+		context->VSSetConstantBuffers(1, 1, &objectConstantBuffer);
+		context->PSSetConstantBuffers(1, 1, &objectConstantBuffer);
+
+		auto model = entity->GetModel();
+		DrawModel(model.get());
+	}
+
+	/*
+	* 
+	for each shader:
+    // Set the device context to use this shader
+    pContext->VSSetShader(shader.pVertexShader);
+    pContext->PSSetShader(shader.pPixelShader);
+
+    for each material that uses this shader:
+        // Set the device context to use any constant buffers, textures, samplers,
+        // etc. needed for this material
+        pContext->VSSetConstantBuffers(...);
+        pContext->PSSetConstantBuffers(...);
+        pContext->PSSetShaderResources(...);
+        pContext->PSSetSamplers(...);
+
+        for each mesh that uses this material:
+            // Set any constant buffers containing parameters specific to the mesh
+            // (e.g. world matrix)
+            pContext->VSSetConstantBuffers(...);
+
+            // Set the context to use the vertex & index buffers for this mesh
+            pContext->IASetInputLayout(mesh.pInputLayout);
+            pContext->IASetVertexBuffers(...);
+            pContext->IASetIndexBuffer(...);
+            pContext->IASetPrimitiveTopology(...)
+
+            // Draw it
+            pContext->DrawIndexed(...)
+
+	*/
+
 }
 
 void Graphics::DrawMesh(Mesh* mesh)
@@ -402,7 +594,6 @@ void Graphics::DrawModel(Model* model)
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		auto material = mesh->GetMaterial();
-		UpdateMaterialConstants(material.get());
 		UseMaterial(material.get());
 
 		auto vertexBuffer = mesh->GetVertexBuffer();

@@ -6,20 +6,16 @@
 
 #include "Matrix.h"
 
+namespace Engine
+{
+	class Game;
+}
 class Mesh;
 class Model;
 class Shader;
 class Vertex;
 class Material;
 class Camera;
-
-struct ConstantBuffer
-{
-	Math::Matrix world;
-	Math::Matrix view;
-	Math::Matrix projection;
-};
-static_assert((sizeof(ConstantBuffer) % 16) == 0, "Constant Buffer size must be 16-byte aligned");
 
 class Graphics
 {
@@ -30,6 +26,18 @@ public:
 	int Initialize(Display* display, HWND hWnd, int width, int height);
 
 	void CreateRasterizerState();
+
+	void SetRasterizerState(bool wireframe = false);
+
+public:
+	// Display
+	void CreateSwapChain(HWND hWnd, int width, int height, IDXGISwapChain** outSwapChain);
+	void CreateRenderTargetView(IDXGISwapChain* swapChain, ID3D11RenderTargetView** outRenderTargetView);
+	void CreateDepthStencilView(int width, int height, ID3D11DepthStencilView** outDepthStencilView);
+	void CreateDepthStencilState(ID3D11DepthStencilState** outDepthStencilState);
+
+	void SetViewport(int width, int height);
+
 	void CreateVertexBuffer(const std::vector<Vertex>& vertices, ID3D11Buffer** outVertexBuffer);
 	void CreateIndexBuffer(const std::vector<uint32_t>& indices, ID3D11Buffer** outIndexBuffer);
 	void CreateVertexShader(const std::wstring& filePath, ID3D11VertexShader** outVertexShader, ID3D11InputLayout** outInputLayout);
@@ -37,15 +45,12 @@ public:
 	void CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outBuffer);
 	void CreateTexture(const std::wstring& filePath, ID3D11Texture2D** outTexture, ID3D11ShaderResourceView** outShaderResourceView, ID3D11SamplerState** outSamplerState);
 
-	void SetRasterizerState(bool wireframe = false);
+
 	void UseMaterial(Material* material);
-	void UpdateMaterialConstants(Material* material);
-	void UpdateWorldMatrix(Math::Matrix world);
-	void UpdateViewProjectionMatrix(Math::Matrix view, Math::Matrix projection);
-	void UpdateConstantBuffer(void* data, ID3D11Buffer* buffer);
+	void UpdateConstantBuffer(void* data, size_t size, ID3D11Buffer* buffer);
 
 	void ClearColor(float r, float g, float b, float a);
-	void Render();
+	void Render(Engine::Game* game);
 	void DrawMesh(Mesh* mesh);
 	void DrawModel(Model* model);
 
@@ -69,7 +74,5 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> wireframeRasterizerState = nullptr;
-
-	ConstantBuffer constantBufferData;
 };
 

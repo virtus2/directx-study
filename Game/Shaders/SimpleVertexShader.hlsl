@@ -1,8 +1,12 @@
-cbuffer SimpleVertexConstantBuffer : register(b0)
+cbuffer FrameConstantBuffer : register(b0)
 {
-    matrix model;
     matrix view;
     matrix projection;
+};
+
+cbuffer EntityConstantBuffer : register(b1)
+{
+    matrix world;
 };
 
 struct VS_INPUT
@@ -23,11 +27,12 @@ VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
     float4 pos = float4(input.pos, 1.0f);
-    output.pos = mul(pos, model);
+    output.pos = mul(pos, world);
     output.pos = mul(output.pos, view);
     output.pos = mul(output.pos, projection);
     
-    output.normal = normalize(mul(input.normal, model));
+    output.normal = normalize(mul(input.normal, world));
+    output.normal = float3(0.0f, 0.0f, 0.0f);
     output.texCoord = input.texCoord;
     
     return output;
