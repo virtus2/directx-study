@@ -8,6 +8,7 @@ using namespace DirectX;
 
 namespace Math
 {
+	// TODO: XMFLOAT를 래핑하던지 아예 그냥 삭제할 예정.
 	class Vector4;
 
 	class Vector3
@@ -95,7 +96,6 @@ namespace Math
 		INLINE static Vector4 Zero() { return Vector4(0.0f, 0.0f, 0.0f, 0.0f); }
 
 	protected:
-		// TODO: Vector3인데 XMVECTOR를 써도 될까
 		XMVECTOR vec;
 	};
 
@@ -134,7 +134,6 @@ namespace Math
 		INLINE Vector2 Clamp(const Vector2& vmin, const Vector2& vmax) const { return XMVectorClamp(vec, vmin, vmax); }
 
 	protected:
-		// TODO: Vector2인데 XMVECTOR를 써도 될까
 		XMVECTOR vec;
 	};
 }

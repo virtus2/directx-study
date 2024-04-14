@@ -14,7 +14,7 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-    float4 pos : SV_Position;
+    float4 pos : SV_POSITION;
     float3 normal : NORMAL;
     float2 texCoord : TEXCOORD;
 };
@@ -27,8 +27,7 @@ VS_OUTPUT main(VS_INPUT input)
     output.pos = mul(output.pos, view);
     output.pos = mul(output.pos, projection);
     
-    float4 normal = float4(input.normal, 0.0f);
-    output.normal = normalize(mul(normal, model));
+    output.normal = normalize(mul(input.normal, model));
     output.texCoord = input.texCoord;
     
     return output;

@@ -342,8 +342,6 @@ void Graphics::UseMaterial(Material* material)
 		auto shaderResourceView = diffuse->GetShaderResourceView();
 		auto samplerState = diffuse->GetSamplerState();
 
-		context->VSSetSamplers(0, 1, &samplerState);
-		context->VSSetShaderResources(0, 1, &shaderResourceView);
 		context->PSSetSamplers(0, 1, &samplerState);
 		context->PSSetShaderResources(0, 1, &shaderResourceView);
 	}
