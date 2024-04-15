@@ -1,14 +1,15 @@
 ﻿#include "pch.h"
 #include "DirectXTex.h"
 #include "dxgi1_6.h"
-#include "Graphics.h"
 
+#include "Graphics.h"
 #include "Game.h"
 #include "Display.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "Camera.h"
 #include "Entity.h"
+#include "Light.h"
 
 Graphics::Graphics()
 {
@@ -481,32 +482,58 @@ void Graphics::Render(Engine::Game* game)
 	ClearColor(0.0f, 0.0f, 0.75f, 1.0f);
 	SetRasterizerState();
 
+	// 카메라
 	auto mainCamera = game->GetMainCamera();
 	if (mainCamera)
 	{
 		// 카메라 관련된 상수 버퍼를 갱신합니다.
-		auto cameraConstantBuffer = mainCamera->GetCameraConstantBuffer();
-		auto cameraConstantBufferData = mainCamera->GetCameraConstantBufferData();
-		auto cameraConstantBufferSize = mainCamera->GetCameraConstantBufferSize();
+		auto cameraVertexConstantBuffer = mainCamera->GetCameraVertexConstantBuffer();
+		auto cameraVertexConstantBufferData = mainCamera->GetCameraVertexConstantBufferData();
+		auto cameraVertexConstantBufferSize = mainCamera->GetCameraVertexConstantBufferSize();
 		// TODO: 굳이 분기 안타고 미리 만들어놓는게 나을지도... 메인카메라 변경될경우 버퍼 만들어주고 해제하면 될거같음
-		if (cameraConstantBuffer)
+		if (cameraVertexConstantBuffer)
 		{
-			UpdateConstantBuffer(cameraConstantBufferData, cameraConstantBufferSize, cameraConstantBuffer);
+			UpdateConstantBuffer(cameraVertexConstantBufferData, cameraVertexConstantBufferSize, cameraVertexConstantBuffer);
 		}
 		else
 		{
-			CreateConstantBuffer(cameraConstantBufferData, cameraConstantBufferSize, &cameraConstantBuffer);
+			CreateConstantBuffer(cameraVertexConstantBufferData, cameraVertexConstantBufferSize, &cameraVertexConstantBuffer);
 		}
-		context->VSSetConstantBuffers(0, 1, &cameraConstantBuffer);
-		context->PSSetConstantBuffers(0, 1, &cameraConstantBuffer);
-
+		context->VSSetConstantBuffers(0, 1, &cameraVertexConstantBuffer);
+		context->PSSetConstantBuffers(0, 1, &cameraVertexConstantBuffer);
 	}
 	else
 	{
 		// TODO: 메인카메라 없을때 에러 핸들링
 	}
-	
 
+	// 광원
+	auto lights = game->GetLights();
+	for (const auto& light : lights)
+	{
+		auto cameraPosition = mainCamera->GetPosition();
+		XMFLOAT3 cameraPositionFloat3 = { cameraPosition.x(), cameraPosition.y(), cameraPosition.z() };
+		light->SetCameraPosition(cameraPositionFloat3);
+
+		light->SetLightDirection({ 0.0f, 0.0f, 0.0f});
+		light->SetLightPosition({5.0f, 5.0f, -10.0f });
+		light->Update();
+
+		auto lightConstantBuffer = light->GetLightConstantBuffer();
+		auto lightConstantBufferData = light->GetLightConstantBufferData();
+		auto lightConstantBufferSize = light->GetLightConstantBufferSize();
+		if (lightConstantBuffer)
+		{
+			UpdateConstantBuffer(lightConstantBufferData, lightConstantBufferSize, lightConstantBuffer);
+		}
+		else
+		{
+			CreateConstantBuffer(lightConstantBufferData, lightConstantBufferSize, &lightConstantBuffer);
+		}
+		context->PSSetConstantBuffers(0, 1, &lightConstantBuffer);
+	}
+	
+	// 엔티티
 	auto entities = game->GetEntities();
 	for (const auto& entity : entities)
 	{
@@ -515,25 +542,27 @@ void Graphics::Render(Engine::Game* game)
 		auto rotation = entity->GetRotation();
 		auto scale = entity->GetScale();
 
+		entity->SetRotation({ rotation.x(), rotation.y() + 0.01f, rotation.z() });
+
 		auto world = XMMatrixScaling(scale.x(), scale.y(), scale.z())
 			* XMMatrixRotationRollPitchYaw(rotation.x(), rotation.y(), rotation.z())
 			* XMMatrixTranslation(position.x(), position.y(), position.z());
 
-		auto objectConstantBuffer = entity->GetObjectConstantBuffer();
-		auto objectConstantBufferData = entity->GetObjectConstantBufferData();
-		objectConstantBufferData->world = XMMatrixTranspose(world);
-		auto objectConstantBufferSize = entity->GetObjectConstantBufferSize();
+		auto objectVertexConstantBuffer = entity->GetObjectVertexConstantBuffer();
+		auto objectVertexConstantBufferData = entity->GetObjectVertexConstantBufferData();
+		objectVertexConstantBufferData->world = XMMatrixTranspose(world);
+		auto objectVertexConstantBufferSize = entity->GetObjectVertexConstantBufferSize();
 		// TODO: 굳이 분기 안타고 미리 만들어놓는게 나을지도... 
-		if (objectConstantBuffer)
+		if (objectVertexConstantBuffer)
 		{
-			UpdateConstantBuffer(objectConstantBufferData, objectConstantBufferSize, objectConstantBuffer);
+			UpdateConstantBuffer(objectVertexConstantBufferData, objectVertexConstantBufferSize, objectVertexConstantBuffer);
 		}
 		else
 		{
-			CreateConstantBuffer(objectConstantBufferData, objectConstantBufferSize, &objectConstantBuffer);
+			CreateConstantBuffer(objectVertexConstantBufferData, objectVertexConstantBufferSize, &objectVertexConstantBuffer);
 		}
-		context->VSSetConstantBuffers(1, 1, &objectConstantBuffer);
-		context->PSSetConstantBuffers(1, 1, &objectConstantBuffer);
+		context->VSSetConstantBuffers(1, 1, &objectVertexConstantBuffer);
+		// context->PSSetConstantBuffers(1, 1, &ObjectVertexConstantBuffer);
 
 		auto model = entity->GetModel();
 		DrawModel(model.get());

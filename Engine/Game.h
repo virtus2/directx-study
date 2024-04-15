@@ -12,6 +12,7 @@ class Material;
 class Camera;
 class Timer;
 class Texture;
+class Light;
 
 namespace Engine
 {
@@ -41,7 +42,8 @@ namespace Engine
 
         Input* GetInput() { return input.get(); }
         std::shared_ptr<Camera> GetMainCamera() { return mainCamera; }
-        std::vector<std::shared_ptr<Entity>> GetEntities() { return entities; }
+        std::vector<std::shared_ptr<Entity>>& GetEntities() { return entities; }
+        std::vector<std::shared_ptr<Light>>& GetLights() { return lights; }
 
     protected:
         int width;
@@ -49,6 +51,7 @@ namespace Engine
         bool isRunning = false;
 
         std::vector<std::shared_ptr<Entity>> entities;
+        std::vector<std::shared_ptr<Light>> lights;
         std::shared_ptr<Camera> mainCamera;
 
     private:

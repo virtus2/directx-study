@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Timer.h"
 #include "Texture.h"
+#include "Light.h"
 
 namespace Engine
 {
@@ -43,6 +44,9 @@ namespace Engine
 		modelLoader->Initialize(graphics.get());
 
 		timer->Initialize();
+
+		// TODO: 라이팅 테스트 코드 삭제
+		lights.push_back(std::make_shared<Light>());
 
 		// 게임 루프
 		isRunning = true;

@@ -4,12 +4,12 @@
 
 class Camera
 {
-	struct CameraConstantBuffer
+	struct CameraVertexConstantBuffer
 	{
 		Math::Matrix view;
 		Math::Matrix projection;
 	};
-	static_assert((sizeof(CameraConstantBuffer) % 16) == 0, "CameraConstantBuffer size must be 16-byte aligned");
+	static_assert((sizeof(CameraVertexConstantBuffer) % 16) == 0, "CameraVertexConstantBuffer size must be 16-byte aligned");
 
 public:
 	Camera();
@@ -25,9 +25,9 @@ public:
 
 	// TODO: Graphics에서 Getter로 버퍼, 버퍼 데이터 얻어와서 갱신하는 것 vs Camera에서 직접 갱신하는 것 중 어떤 방법이 더 좋은지 고민
 	// 메인카메라만 갱신할것이니 전자가 나을수도 있음
-	CameraConstantBuffer* GetCameraConstantBufferData() { return &cameraConstantBufferData; }
-	ID3D11Buffer* GetCameraConstantBuffer() { return cameraConstantBuffer.Get(); }
-	size_t GetCameraConstantBufferSize() { return sizeof(CameraConstantBuffer); }
+	CameraVertexConstantBuffer* GetCameraVertexConstantBufferData() { return &cameraVertexConstantBufferData; }
+	ID3D11Buffer* GetCameraVertexConstantBuffer() { return cameraVertexConstantBuffer.Get(); }
+	size_t GetCameraVertexConstantBufferSize() { return sizeof(CameraVertexConstantBuffer); }
 
 private:
 	const Math::Vector3 upVector = Math::Vector3(0.0f, 1.0f, 0.0f);
@@ -43,6 +43,6 @@ private:
 	float nearPlane;
 	float farPlane;
 
-	CameraConstantBuffer cameraConstantBufferData;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> cameraConstantBuffer = nullptr;
+	CameraVertexConstantBuffer cameraVertexConstantBufferData;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> cameraVertexConstantBuffer = nullptr;
 };
