@@ -10,16 +10,6 @@ Model::~Model()
 {
 }
 
-std::vector<std::shared_ptr<Mesh>> Model::GetMeshes()
-{
-	std::vector<std::shared_ptr<Mesh>> meshes;
-	for (auto& mesh : meshMap)
-	{
-		meshes.push_back(mesh.second);
-	}
-	return meshes;
-}
-
 void Model::PrepareRender(Graphics* graphics)
 {
 	for (auto& mesh : meshMap)
@@ -28,8 +18,8 @@ void Model::PrepareRender(Graphics* graphics)
 	}
 }
 
-void Model::AddMesh(std::shared_ptr<Mesh> mesh, std::string& meshName)
+void Model::AddMesh(std::string& meshName, std::shared_ptr<Mesh> mesh)
 {
 	meshMap.insert({ meshName, mesh });
-	meshCount++;
+	meshList.push_back(mesh);
 }

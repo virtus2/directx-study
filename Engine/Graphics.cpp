@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include <assimp/scene.h>
 #include "DirectXTex.h"
 #include "dxgi1_6.h"
 
@@ -410,6 +411,64 @@ void Graphics::CreateTexture(const std::wstring& filePath, ID3D11Texture2D** out
 		return;
 	}
 
+	// TODO: 샘플러 스테이트를 다른곳에서 생성하고 다른곳에서 참조
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = (FLOAT)mipChain.GetMetadata().mipLevels;
+	result = d3dDevice->CreateSamplerState(&samplerDesc, outSamplerState);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create sampler state", L"Error", MB_OK);
+		return;
+	}
+}
+
+void Graphics::CreateTexture(uint8_t* data, size_t width, size_t height, ID3D11Texture2D** outTexture, ID3D11ShaderResourceView** outShaderResourceView, ID3D11SamplerState** outSamplerState)
+{
+	DirectX::Image rawImage;
+	rawImage.pixels = data;
+	rawImage.width = width;
+	rawImage.height = height;
+	rawImage.rowPitch = width * 4;
+	rawImage.slicePitch = rawImage.rowPitch * height;
+	rawImage.format = DXGI_FORMAT_R8G8B8A8_UINT;
+
+	DirectX::ScratchImage image;
+	image.InitializeFromImage(rawImage);
+
+	DirectX::TexMetadata metadata = image.GetMetadata();
+	DirectX::ScratchImage mipChain;
+	HRESULT result = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_DEFAULT, 0, mipChain);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to generate mipmaps", L"Error", MB_OK);
+		return;
+	}
+
+	result = DirectX::CreateTexture(d3dDevice.Get(), mipChain.GetImages(), mipChain.GetImageCount(), mipChain.GetMetadata(), (ID3D11Resource**)outTexture);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create texture", L"Error", MB_OK);
+		return;
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
+	shaderResourceViewDesc.Format = metadata.format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = (UINT)mipChain.GetMetadata().mipLevels;
+	result = d3dDevice->CreateShaderResourceView(*outTexture, &shaderResourceViewDesc, outShaderResourceView);
+	if (FAILED(result))
+	{
+		MessageBox(nullptr, L"Failed to create shader resource view", L"Error", MB_OK);
+		return;
+	}
+
+	// TODO: 샘플러 스테이트를 다른곳에서 생성하고 다른곳에서 참조
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;

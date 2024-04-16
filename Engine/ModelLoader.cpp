@@ -2,6 +2,10 @@
 #include <filesystem>
 #include "ModelLoader.h"
 #include "Model.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 ModelLoader::ModelLoader()
 {
 }
@@ -28,27 +32,26 @@ std::shared_ptr<Model> ModelLoader::Load(const std::string& filePath)
 
 	auto model = std::make_shared<Model>();
 	model->filePath = filePath.substr(0, filePath.find_last_of('/'));
-	ProcessNode(scene->mRootNode, scene, model);
+	ProcessNode(scene, model, scene->mRootNode);
 	return model;
 }
 
-void ModelLoader::ProcessNode(aiNode* node, const aiScene* scene, const std::shared_ptr<Model> model)
+void ModelLoader::ProcessNode(const aiScene* scene, const std::shared_ptr<Model> model, aiNode* node)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		ProcessMesh(mesh, scene, model);
+		ProcessMesh(scene, model, mesh);
 	}
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(node->mChildren[i], scene, model);
+		ProcessNode(scene, model, node->mChildren[i]);
 	}
 }
 
-void ModelLoader::ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::shared_ptr<Model> model)
+void ModelLoader::ProcessMesh(const aiScene* scene, const std::shared_ptr<Model> model, aiMesh* mesh)
 {
 	auto newMesh = std::make_shared<Mesh>();
-
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
@@ -78,57 +81,89 @@ void ModelLoader::ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::sha
 		}
 	}
 
-	newMesh->indexCount = newMesh->indices.size();
-	if (newMesh->indexCount > 0)
-	{
-		auto meshName = std::string(mesh->mName.C_Str());
-		model->meshMap.insert({ meshName, newMesh });
+	auto meshName = std::string(mesh->mName.C_Str());
+	model->AddMesh(meshName, newMesh);
 
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		ProcessMaterial(material, model, meshName);
-	}
-
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	ProcessMaterial(scene, model, material, meshName);
 }
 
-void ModelLoader::ProcessMaterial(aiMaterial* material, const std::shared_ptr<Model> model, std::string& meshName)
+void ModelLoader::ProcessMaterial(const aiScene* scene, const std::shared_ptr<Model> model, aiMaterial* material, std::string& meshName)
 {
 	auto newMaterial = std::make_shared<Material>();
 	model->meshMap[meshName]->material = newMaterial;
 	std::string materialName = material->GetName().C_Str();
 
-	ProcessTexture(material, aiTextureType_DIFFUSE, model, meshName);
-	ProcessTexture(material, aiTextureType_SPECULAR, model, meshName);
-	ProcessTexture(material, aiTextureType_AMBIENT, model, meshName);
-	ProcessTexture(material, aiTextureType_EMISSIVE, model, meshName);
-	ProcessTexture(material, aiTextureType_HEIGHT, model, meshName);
-	ProcessTexture(material, aiTextureType_NORMALS, model, meshName);
-	ProcessTexture(material, aiTextureType_SHININESS, model, meshName);
-	ProcessTexture(material, aiTextureType_OPACITY, model, meshName);
-	ProcessTexture(material, aiTextureType_DISPLACEMENT, model, meshName);
-	ProcessTexture(material, aiTextureType_LIGHTMAP, model, meshName);
-	ProcessTexture(material, aiTextureType_REFLECTION, model, meshName);
-	ProcessTexture(material, aiTextureType_BASE_COLOR, model, meshName);
-	ProcessTexture(material, aiTextureType_NORMAL_CAMERA, model, meshName);
-	ProcessTexture(material, aiTextureType_EMISSION_COLOR, model, meshName);
-	ProcessTexture(material, aiTextureType_METALNESS, model, meshName);
-	ProcessTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, model, meshName);
-	ProcessTexture(material, aiTextureType_AMBIENT_OCCLUSION, model, meshName);
+	aiColor4D diffuse;
+	if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse))
+	{
+		newMaterial->diffuse = { diffuse.r, diffuse.g, diffuse.b, diffuse.a };
+	}
+
+	aiColor4D specular;
+	if (material->Get(AI_MATKEY_COLOR_SPECULAR, specular))
+	{
+		newMaterial->specular = { specular.r, specular.g, specular.b, specular.a };
+	}
+
+	aiColor4D ambient;
+	if (material->Get(AI_MATKEY_COLOR_AMBIENT, ambient))
+	{
+		newMaterial->ambient = { ambient.r, ambient.g, ambient.b, ambient.a };
+	}
+
+	ProcessTexture(scene, model, material, meshName, aiTextureType_SPECULAR);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_AMBIENT);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_EMISSIVE);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_HEIGHT);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_NORMALS);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_SHININESS);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_OPACITY);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_DISPLACEMENT);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_LIGHTMAP);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_REFLECTION);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_BASE_COLOR);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_NORMAL_CAMERA);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_EMISSION_COLOR);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_METALNESS);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_DIFFUSE_ROUGHNESS);
+	ProcessTexture(scene, model, material, meshName, aiTextureType_AMBIENT_OCCLUSION);
 }
 
-void ModelLoader::ProcessTexture(aiMaterial* material, aiTextureType type, const std::shared_ptr<Model> model, std::string& meshName)
+void ModelLoader::ProcessTexture(const aiScene* scene, const std::shared_ptr<Model> model, aiMaterial* material, std::string& meshName, aiTextureType type)
 {
-	aiString texturePath;
 	if (material->GetTextureCount(type) > 0)
 	{
-		// TODO: type은 다른데 texturePath는 같을 수 있음. 중복해서 로드하지 않게 따로 처리필요함.
-		material->GetTexture(type, 0, &texturePath);
-		auto modelFilePath = model->filePath;
-		auto textureFilePath = std::filesystem::path(texturePath.C_Str()).filename().string();
-		std::string textureFullPath = modelFilePath + "/" + textureFilePath;
-		// std::string textureFullPath = std::filesystem::path(modelFilePath).append(textureFilePath).string();
-		model->meshMap[meshName]->material->textureFilePaths.insert({ GetTextureType(type), textureFullPath });
+		aiString path;
+		material->GetTexture(type, 0, &path);
+		std::string texturePath = path.C_Str();
+		if (texturePath[0] == '*')
+		{
+			/*
+			* If the texture is embedded, receives a '*' followed by the id of
+			* the texture(for the textures stored in the corresponding scene) which
+			* can be converted to an int using a function like atoi.
+			* This parameter must be non - null.
+			*/
+			int textureId = std::atoi(texturePath.substr(1, texturePath.size()).c_str());
+			aiTexture* texture = scene->mTextures[textureId];
+
+			int width, height, channels;
+			uint8_t* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(texture->pcData), texture->mWidth, &width, &height, &channels, STBI_rgb_alpha);
+			auto newTexture = std::make_shared<Texture>();
+			newTexture->CreateTexture(graphics, data, width, height);
+			model->meshMap[meshName]->material->textures.insert({ GetTextureType(type), newTexture });
+		}
+		else
+		{
+			auto modelFilePath = model->filePath;
+			auto textureFilePath = std::filesystem::path(texturePath).filename().string();
+			std::string fullPath = modelFilePath + "/" + textureFilePath;
+			model->meshMap[meshName]->material->textureFilePaths.insert({ GetTextureType(type), fullPath });
+		}
 	}
 }
+
 
 Texture::TextureType ModelLoader::GetTextureType(aiTextureType type)
 {

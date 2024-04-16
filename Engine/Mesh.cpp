@@ -16,7 +16,6 @@ void Mesh::SetMeshData(std::vector<Vertex> vertices, std::vector<uint32_t> indic
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	indexCount = indices.size();
 }
 
 void Mesh::PrepareRender(Graphics* graphics)

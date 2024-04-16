@@ -16,6 +16,7 @@ class Shader;
 class Vertex;
 class Material;
 class Camera;
+class aiTexture;
 
 class Graphics
 {
@@ -44,7 +45,7 @@ public:
 	void CreatePixelShader(const std::wstring& filePath, ID3D11PixelShader** outPixelShader);
 	void CreateConstantBuffer(void* data, size_t size, ID3D11Buffer** outBuffer);
 	void CreateTexture(const std::wstring& filePath, ID3D11Texture2D** outTexture, ID3D11ShaderResourceView** outShaderResourceView, ID3D11SamplerState** outSamplerState);
-
+	void CreateTexture(uint8_t* data, size_t width, size_t height, ID3D11Texture2D** outTexture, ID3D11ShaderResourceView** outShaderResourceView, ID3D11SamplerState** outSamplerState);
 
 	void UseMaterial(Material* material);
 	void UpdateConstantBuffer(void* data, size_t size, ID3D11Buffer* buffer);

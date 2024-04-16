@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 #include <unordered_map>
 #include "Texture.h"
+
 class Model;
 class Vertex;
 
@@ -17,10 +18,10 @@ public:
 	int Initialize(Graphics* graphics);
 
 	std::shared_ptr<Model> Load(const std::string& filePath);
-	void ProcessNode(aiNode* node, const aiScene* scene, const std::shared_ptr<Model> model);
-	void ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::shared_ptr<Model> model);
-	void ProcessMaterial(aiMaterial* material, const std::shared_ptr<Model> model, std::string& meshName);
-	void ProcessTexture(aiMaterial* material, aiTextureType type, const std::shared_ptr<Model> model, std::string& meshName);
+	void ProcessNode(const aiScene* scene, const std::shared_ptr<Model> model, aiNode* node);
+	void ProcessMesh(const aiScene* scene, const std::shared_ptr<Model> model, aiMesh* mesh);
+	void ProcessMaterial(const aiScene* scene, const std::shared_ptr<Model> model, aiMaterial* material, std::string& meshName);
+	void ProcessTexture(const aiScene* scene, const std::shared_ptr<Model> model, aiMaterial* material, std::string& meshName, aiTextureType type);
 
 private:
 	Texture::TextureType GetTextureType(aiTextureType type);

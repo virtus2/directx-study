@@ -18,7 +18,7 @@ public:
 
     ID3D11Buffer* GetVertexBuffer() const { return vertexBuffer.Get(); }
     ID3D11Buffer* GetIndexBuffer() const { return indexBuffer.Get(); }
-    unsigned int GetIndexCount() const { return indexCount; }
+    size_t GetIndexCount() const { return indices.size(); }
     std::shared_ptr<Material> GetMaterial() const { return material; }
 
 private:
@@ -28,6 +28,4 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
-
-    unsigned int indexCount = 0;
 };

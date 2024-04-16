@@ -23,6 +23,10 @@ public:
 	ID3D11Buffer* GetConstantBuffer() { return constantBuffer.Get(); }
 
 private:
+	DirectX::XMFLOAT4 diffuse{ 0.0f, 0.0f, 0.0f, 1.0f };
+	DirectX::XMFLOAT4 specular{ 0.0f, 0.0f, 0.0f, 1.0f };
+	DirectX::XMFLOAT4 ambient{ 0.0f, 0.0f, 0.0f, 1.0f };
+
 	void CreateConstantBuffer(Graphics* graphics, void* data, size_t size);
 	void UpdateConstantBuffer(Graphics* graphics, void* data, size_t size);
 

@@ -5,13 +5,20 @@
 #include "ModelLoader.h"
 #include "Camera.h"
 
-#define ZELDA 1
+#define ZELDA 0
 #define RECTANGLE 0
 #define CUBE 0
+#define HELMET 1
 
 void MyGame::BeginRun()
 {
 	entity = CreateEntity();
+#if HELMET==1
+	// 헬멧 테스트 코드
+	std::string modelPath = "Models/DamagedHelmet.glb";
+	model = CreateModel(modelPath);
+	entity->SetModel(model);
+#endif 
 
 #if ZELDA==1
 	// 젤다 테스트 코드

@@ -3,6 +3,7 @@
 #include <string>
 
 class Graphics;
+class aiTexture;
 
 class Texture
 {
@@ -33,6 +34,7 @@ public:
 	~Texture();
 
 	void CreateTexture(Graphics* graphics, const std::wstring& filePath);
+	void CreateTexture(Graphics* graphics, uint8_t* data, size_t width, size_t height);
 	
 	ID3D11ShaderResourceView* GetShaderResourceView() { return shaderResourceView.Get(); }
 	ID3D11SamplerState* GetSamplerState() { return samplerState.Get(); }

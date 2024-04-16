@@ -87,9 +87,6 @@ namespace Engine
 			mainCamera->Update(deltaTime);
 		}
 
-
-		Utility::Printf("%f\n", deltaTime);
-		// TODO: Delta Time 계산해서 넘겨줘야함
 		OnUpdate(deltaTime);
 	}
 
@@ -102,7 +99,6 @@ namespace Engine
 
 	std::shared_ptr<Entity> Game::CreateEntity()
 	{
-		// TODO: Entity를 생성하고 관련 데이터를 세팅한다.
 		auto entity = std::make_shared<Entity>();
 		entities.push_back(entity);
 		return entity;
@@ -169,7 +165,7 @@ namespace Engine
 		std::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
 		mesh->SetMeshData(vertices, indices);
 		std::string meshName("Rectangle");
-		model->AddMesh(mesh, meshName);
+		model->AddMesh(meshName, mesh);
 		model->PrepareRender(graphics.get());
 		return model;
 	}
@@ -232,7 +228,7 @@ namespace Engine
 		};
 		mesh->SetMeshData(vertices, indices);
 		std::string meshName("Cube");
-		model->AddMesh(mesh, meshName);
+		model->AddMesh(meshName, mesh);
 		model->PrepareRender(graphics.get());
 		return model;
 	}
