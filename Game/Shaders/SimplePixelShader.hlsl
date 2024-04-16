@@ -1,4 +1,4 @@
-﻿Texture2D diffuse : register(t0);
+Texture2D diffuse : register(t0);
 SamplerState diffuseSampler : register(s0);
 
 cbuffer LightPixelConstantBuffer : register(b0)
@@ -18,7 +18,7 @@ struct PS_INPUT
 
 float4 Gooch(PS_INPUT input)
 {
-    // 리얼타임 렌더링 4e. 5장 음영기초 175쪽
+    // REAL-TIME RENDERING 4/e. 175p
     float3 surfaceColor = diffuse.Sample(diffuseSampler, input.texCoord).xyz;
     float3 toEye = normalize(cameraPosition - input.posWorld);
     float3 toLight = normalize(lightPosition - input.posWorld);
