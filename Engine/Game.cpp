@@ -20,6 +20,7 @@ namespace Engine
 		display = std::make_unique<Display>();
 		modelLoader = std::make_unique<ModelLoader>();
 		timer = std::make_unique<Timer>();
+		resource = std::make_unique<Resource>();
 	}
 
 	Game::~Game()

@@ -1,10 +1,13 @@
 ﻿#pragma once
 #include "Input.h"
+#include "Resource.h"
 #include "Graphics.h"
 #include "Window.h"
 #include "Display.h"
 #include "Model.h"
 #include "ModelLoader.h"
+
+#include <map>
 
 class Entity;
 class Shader;
@@ -31,6 +34,7 @@ namespace Engine
 
         std::shared_ptr<Entity> CreateEntity();
         std::shared_ptr<Camera> CreateCamera();
+
         std::shared_ptr<Model> CreateModel(const std::string& filePath);
         std::shared_ptr<Shader> CreateShader(const std::wstring& vertexShaderFilePath, const std::wstring& pixelShaderFilePath);
         std::shared_ptr<Material> CreateMaterial();
@@ -50,9 +54,11 @@ namespace Engine
         int height;
         bool isRunning = false;
 
+        /// TODO: Scene 클래스로 이동
         std::vector<std::shared_ptr<Entity>> entities;
         std::vector<std::shared_ptr<Light>> lights;
         std::shared_ptr<Camera> mainCamera;
+        ////////////////////////////
 
     private:
         std::unique_ptr<Input> input;
@@ -61,8 +67,14 @@ namespace Engine
         std::unique_ptr<Display> display;
         std::unique_ptr<ModelLoader> modelLoader;
         std::unique_ptr<Timer> timer;
+        std::unique_ptr<Resource> resource;
 
-        std::unordered_map<std::string, std::shared_ptr<Entity>> entityByShaderName;
-
+        // TODO: Resource 클래스로 이동
+        // TODO: 각각의 리소스 생성할 때 맵에 추가하고 이를 참조해서 사용
+        std::map<std::string, std::shared_ptr<Model>> models;
+        std::map<std::string, std::shared_ptr<Shader>> shaders;
+        std::map<std::string, std::shared_ptr<Material>> materials;
+        std::map<std::string, std::shared_ptr<Texture>> textures;
+        ////////////////////////////
     };
 }

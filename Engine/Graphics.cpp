@@ -504,6 +504,24 @@ void Graphics::UseMaterial(Material* material)
 		context->PSSetSamplers(0, 1, &samplerState);
 		context->PSSetShaderResources(0, 1, &shaderResourceView);
 	}
+	/*
+	size_t count = static_cast<size_t>(Texture::TextureType::Count);
+	for(size_t i = 0; i < count; i++)
+	{
+		auto textureType = static_cast<Texture::TextureType>(i);
+		auto texture = material->GetTexture(textureType);
+		if (texture)
+		{
+			auto shaderResourceView = texture->GetShaderResourceView();
+			auto samplerState = texture->GetSamplerState();
+
+			// TODO: 텍스처마다 슬롯 정해주기. 쉐이더가 달라질 경우도 고려해야함.
+			// TODO: 우버 쉐이더에 대해서 알아보기.
+			context->PSSetSamplers(0, 1, &samplerState);
+			context->PSSetShaderResources(0, 1, &shaderResourceView);
+		}
+	}
+	*/
 }
 
 void Graphics::UpdateConstantBuffer(void* data, size_t size, ID3D11Buffer* buffer)

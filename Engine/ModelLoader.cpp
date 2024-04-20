@@ -23,7 +23,17 @@ int ModelLoader::Initialize(Graphics* graphics)
 std::shared_ptr<Model> ModelLoader::Load(const std::string& filePath)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+	const unsigned int readFileFlags =
+		aiProcess_Triangulate |
+		aiProcess_SortByPType | // ?
+		aiProcess_GenUVCoords |
+		aiProcess_OptimizeMeshes |
+		aiProcess_CalcTangentSpace |
+		aiProcess_LimitBoneWeights | // ?
+		aiProcess_JoinIdenticalVertices
+		;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), readFileFlags);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		Utility::Printf("ModelLoader: Failed to load file %s", filePath);
@@ -83,7 +93,6 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const std::shared_ptr<Model>
 
 	auto meshName = std::string(mesh->mName.C_Str());
 	model->AddMesh(meshName, newMesh);
-
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	ProcessMaterial(scene, model, material, meshName);
 }
@@ -112,6 +121,22 @@ void ModelLoader::ProcessMaterial(const aiScene* scene, const std::shared_ptr<Mo
 		newMaterial->ambient = { ambient.r, ambient.g, ambient.b, ambient.a };
 	}
 
+	/*
+	if (scene->HasTextures())
+	{
+		for (int i = 0; i < scene->mNumTextures; i++)
+		{
+			auto texture = scene->mTextures[i];
+			int width, height, channels;
+			uint8_t* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(texture->pcData), texture->mWidth, &width, &height, &channels, STBI_rgb_alpha);
+			auto newTexture = std::make_shared<Texture>();
+			newTexture->CreateTexture(graphics, data, width, height);
+			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
+			model->meshMap[meshName]->material->textures.insert({ GetTextureType(aiTextureType_DIFFUSE), newTexture });
+		}
+	}*/
+
+	ProcessTexture(scene, model, material, meshName, aiTextureType_DIFFUSE);
 	ProcessTexture(scene, model, material, meshName, aiTextureType_SPECULAR);
 	ProcessTexture(scene, model, material, meshName, aiTextureType_AMBIENT);
 	ProcessTexture(scene, model, material, meshName, aiTextureType_EMISSIVE);
@@ -136,7 +161,7 @@ void ModelLoader::ProcessTexture(const aiScene* scene, const std::shared_ptr<Mod
 	{
 		aiString path;
 		material->GetTexture(type, 0, &path);
-		std::string texturePath = path.C_Str();
+		std::string texturePath(path.C_Str());
 		if (texturePath[0] == '*')
 		{
 			/*
@@ -147,11 +172,20 @@ void ModelLoader::ProcessTexture(const aiScene* scene, const std::shared_ptr<Mod
 			*/
 			int textureId = std::atoi(texturePath.substr(1, texturePath.size()).c_str());
 			aiTexture* texture = scene->mTextures[textureId];
-
 			int width, height, channels;
 			uint8_t* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(texture->pcData), texture->mWidth, &width, &height, &channels, STBI_rgb_alpha);
 			auto newTexture = std::make_shared<Texture>();
 			newTexture->CreateTexture(graphics, data, width, height);
+			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
+			model->meshMap[meshName]->material->textures.insert({ GetTextureType(type), newTexture });
+		}
+		else if (auto embeddedTexture = scene->GetEmbeddedTexture(texturePath.c_str()))
+		{
+			int width, height, channels;
+			uint8_t* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(embeddedTexture->pcData), embeddedTexture->mWidth, &width, &height, &channels, STBI_rgb_alpha);
+			auto newTexture = std::make_shared<Texture>();
+			newTexture->CreateTexture(graphics, data, width, height);
+			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
 			model->meshMap[meshName]->material->textures.insert({ GetTextureType(type), newTexture });
 		}
 		else
@@ -159,6 +193,7 @@ void ModelLoader::ProcessTexture(const aiScene* scene, const std::shared_ptr<Mod
 			auto modelFilePath = model->filePath;
 			auto textureFilePath = std::filesystem::path(texturePath).filename().string();
 			std::string fullPath = modelFilePath + "/" + textureFilePath;
+			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
 			model->meshMap[meshName]->material->textureFilePaths.insert({ GetTextureType(type), fullPath });
 		}
 	}

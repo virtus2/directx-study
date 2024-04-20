@@ -5,10 +5,11 @@
 #include "ModelLoader.h"
 #include "Camera.h"
 
+#define PALADIN 1
 #define ZELDA 0
 #define RECTANGLE 0
 #define CUBE 0
-#define HELMET 1
+#define HELMET 0
 
 void MyGame::BeginRun()
 {
@@ -20,6 +21,13 @@ void MyGame::BeginRun()
 	entity->SetModel(model);
 #endif 
 
+#if PALADIN==1
+	// 팔라딘 테스트 코드
+	std::string modelPath = "Models/Paladin.fbx";
+	model = CreateModel(modelPath);
+	entity->SetModel(model);
+	entity->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+#endif 
 #if ZELDA==1
 	// 젤다 테스트 코드
 	std::string modelPath = "Models/zeldaPosed001/zeldaPosed001.fbx";

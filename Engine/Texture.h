@@ -10,6 +10,8 @@ class Texture
 public:
 	enum class TextureType
 	{
+		None,
+
 		Diffuse,
 		Specular,
 		Ambient,
