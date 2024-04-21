@@ -31,7 +31,8 @@ std::shared_ptr<Model> ModelLoader::Load(const std::string& filePath)
 		aiProcess_OptimizeMeshes |
 		aiProcess_CalcTangentSpace |
 		aiProcess_LimitBoneWeights | // ?
-		aiProcess_JoinIdenticalVertices
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_ConvertToLeftHanded
 		;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), readFileFlags);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -162,41 +163,65 @@ void ModelLoader::ProcessTexture(const aiScene* scene, const std::shared_ptr<Mod
 		aiString path;
 		material->GetTexture(type, 0, &path);
 		std::string texturePath(path.C_Str());
+
+		int width = 0, height = 0, channels = 0;
+		auto newTexture = std::make_shared<Texture>();
 		if (texturePath[0] == '*')
 		{
-			/*
-			* If the texture is embedded, receives a '*' followed by the id of
-			* the texture(for the textures stored in the corresponding scene) which
-			* can be converted to an int using a function like atoi.
-			* This parameter must be non - null.
-			*/
+			// texturePath가 '*0', '*1', ... 일 경우 임베디드 텍스처로, 해당 씬의 텍스처 ID를 뜻하는 것이다.
+			// 해당 번호로 씬에서 텍스처를 참조한다.
+
 			int textureId = std::atoi(texturePath.substr(1, texturePath.size()).c_str());
 			aiTexture* texture = scene->mTextures[textureId];
-			int width, height, channels;
-			uint8_t* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(texture->pcData), texture->mWidth, &width, &height, &channels, STBI_rgb_alpha);
-			auto newTexture = std::make_shared<Texture>();
-			newTexture->CreateTexture(graphics, data, width, height);
-			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
-			model->meshMap[meshName]->material->textures.insert({ GetTextureType(type), newTexture });
+			auto data = ProcessEmbeddedTexture(texture, width, height, channels);
+			newTexture->CreateTexture(graphics, data.get(), width, height);
 		}
 		else if (auto embeddedTexture = scene->GetEmbeddedTexture(texturePath.c_str()))
 		{
-			int width, height, channels;
-			uint8_t* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(embeddedTexture->pcData), embeddedTexture->mWidth, &width, &height, &channels, STBI_rgb_alpha);
-			auto newTexture = std::make_shared<Texture>();
-			newTexture->CreateTexture(graphics, data, width, height);
-			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
-			model->meshMap[meshName]->material->textures.insert({ GetTextureType(type), newTexture });
+			// 위의 경우가 아님에도 임베디드 텍스처인 경우가 있다...(ex: Mixamo에서 가져온 fbx파일)
+			// 그럴땐 scene->GetEmbeddedTexture에다 경로를 그대로 넘겨주면 된다.
+
+			auto data = ProcessEmbeddedTexture(embeddedTexture, width, height, channels);
+			newTexture->CreateTexture(graphics, data.get(), width, height);
 		}
 		else
 		{
+			// 텍스처 파일이 외부에 따로 존재하는 경우, 해당 경로에 있는 파일을 불러와준다.
+
 			auto modelFilePath = model->filePath;
 			auto textureFilePath = std::filesystem::path(texturePath).filename().string();
 			std::string fullPath = modelFilePath + "/" + textureFilePath;
-			// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
-			model->meshMap[meshName]->material->textureFilePaths.insert({ GetTextureType(type), fullPath });
+			newTexture->CreateTexture(graphics, Utility::UTF8ToWideString(fullPath));
 		}
+
+		// TODO: 매테리얼에 텍스처 추가하는 코드 리팩토링
+		model->meshMap[meshName]->material->textures.insert({ GetTextureType(type), newTexture });
+		// model->meshMap[meshName]->material->textureFilePaths.insert({ GetTextureType(type), fullPath });
 	}
+}
+
+std::shared_ptr<uint8_t> ModelLoader::ProcessEmbeddedTexture(const aiTexture* embeddedTexture, int& outWidth, int& outHeight, int& outChannels)
+{
+	// uint8_t** 말고 std::vector<uint8_t>&은 어떨까...
+	// 텍스처의 mHeight가 0일 경우 압축된 텍스처(ex: JPEG)이다.
+	if (embeddedTexture->mHeight == 0)
+	{
+		std::shared_ptr<uint8_t> data(stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(embeddedTexture->pcData), embeddedTexture->mWidth, &outWidth, &outHeight, &outChannels,
+			STBI_rgb_alpha));
+		return data;
+	}
+	else
+	{
+		std::shared_ptr<uint8_t> data(stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(embeddedTexture->pcData), embeddedTexture->mWidth, &outWidth, &outHeight, &outChannels,
+			STBI_rgb_alpha));
+		return data;
+	}
+	// 매개변수에 STBI_rgb_alpha를 넘겨줬으니 
+	// data[0] = r, 
+	// data[1] = g, 
+	// data[2] = b, 
+	// data[3] = a
+	// 이런식으로 나온다. 
 }
 
 

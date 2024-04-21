@@ -23,6 +23,8 @@ public:
 	void ProcessMaterial(const aiScene* scene, const std::shared_ptr<Model> model, aiMaterial* material, std::string& meshName);
 	void ProcessTexture(const aiScene* scene, const std::shared_ptr<Model> model, aiMaterial* material, std::string& meshName, aiTextureType type);
 
+	std::shared_ptr<uint8_t> ProcessEmbeddedTexture(const aiTexture* embeddedTexture, int& outWidth, int& outHeight, int& outChannels);
+
 private:
 	Texture::TextureType GetTextureType(aiTextureType type);
 	Graphics* graphics = nullptr;

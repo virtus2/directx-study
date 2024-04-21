@@ -433,9 +433,12 @@ void Graphics::CreateTexture(uint8_t* data, size_t width, size_t height, ID3D11T
 	rawImage.pixels = data;
 	rawImage.width = width;
 	rawImage.height = height;
-	rawImage.rowPitch = width * 4;
-	rawImage.slicePitch = rawImage.rowPitch * height;
-	rawImage.format = DXGI_FORMAT_R8G8B8A8_UINT;
+	rawImage.format = DXGI_FORMAT_R8G8B8A8_UNORM; // TODO: UINT는 0~255지만 다른 형식도 존재할 수 있음
+
+	size_t rowPitch, slicePitch;
+	ComputePitch(rawImage.format, width, height, rowPitch, slicePitch);
+	rawImage.rowPitch = rowPitch;
+	rawImage.slicePitch = slicePitch;
 
 	DirectX::ScratchImage image;
 	image.InitializeFromImage(rawImage);
