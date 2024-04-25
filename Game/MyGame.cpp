@@ -5,8 +5,8 @@
 #include "ModelLoader.h"
 #include "Camera.h"
 
-#define PALADIN 1
-#define ZELDA 0
+#define PALADIN 0
+#define ZELDA 1
 #define RECTANGLE 0
 #define CUBE 0
 #define HELMET 0
@@ -33,7 +33,7 @@ void MyGame::BeginRun()
 	std::string modelPath = "Models/zeldaPosed001/zeldaPosed001.fbx";
 	model = CreateModel(modelPath);
 	entity->SetModel(model);
-	entity->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	entity->SetScale(XMFLOAT3(0.01f, 0.01f, 0.01f));
 #endif
  
 #if RECTANGLE==1
@@ -63,70 +63,54 @@ void MyGame::BeginRun()
 void MyGame::OnUpdate(float deltaTime)
 {
 	auto input = GetInput();
-	/*
-	Vector3 cameraVec(camera->GetPosition());
-	if (input->IsPressed(Input::Key_A))
-	{
-		cameraVec += Vector3(-0.1f, 0.0f, 0.0f);
-		camera->SetPosition(cameraVec);
-	}
-	if (input->IsPressed(Input::Key_S))
-	{
-		cameraVec += Vector3(0.0f, 0.0f, -0.1f);
-		camera->SetPosition(cameraVec);
-	}
-	if (input->IsPressed(Input::Key_D))
-	{
-		cameraVec += Vector3(0.1f, 0.0f, 0.0f);
-		camera->SetPosition(cameraVec);
-	}
-	if (input->IsPressed(Input::Key_W))
-	{
-		cameraVec += Vector3(0.0f, 0.0f, 0.1f);
-		camera->SetPosition(cameraVec);
-	}
-	if (input->IsPressed(Input::Key_Space))
-	{
-		cameraVec += Vector3(0.0f, 0.1f, 0.0f);
-		camera->SetPosition(cameraVec);
-	}
-	if (input->IsPressed(Input::Key_LeftControl))
-	{
-		cameraVec += Vector3(0.0f, -0.1f, 0.0f);
-		camera->SetPosition(cameraVec);
-	}
-	Utility::Printf("%f %f %f\n", cameraVec.x(), cameraVec.y(), cameraVec.z());
-	*/
 
-	Vector3 entityVec(entity->GetPosition());
-	if (input->IsPressed(Input::Key_A))
+	// 1인칭 카메라 이동 테스트
+	float moveSpeed = 0.005f;
+	float turnSpeed = 0.1f;
+	float mouseX = input->GetAnalogInput(Input::Mouse_X);
+	float mouseY = input->GetAnalogInput(Input::Mouse_Y);
+	float yaw = mouseX * DirectX::XM_2PI * turnSpeed * deltaTime;
+	float pitch = -mouseY * DirectX::XM_PIDIV2 * turnSpeed * deltaTime;
+
+	XMFLOAT3 pos = camera->GetPosition();
+	XMFLOAT3 lookDir = camera->GetLookDirection();
+	XMFLOAT3 up = camera->GetUpVector();
+	XMFLOAT3 right = camera->GetRightVector();
+
+	XMVECTOR cameraPos = XMLoadFloat3(&pos);
+	XMVECTOR cameraLookDir = XMLoadFloat3(&lookDir);
+	XMVECTOR upVector = XMLoadFloat3(&up);
+	XMVECTOR rightVector = XMLoadFloat3(&right);
+
+	XMFLOAT3 newPos;
+	XMMATRIX newLookDir = XMMatrixRotationRollPitchYaw(pitch, yaw, 0);
+	cameraLookDir = XMVector3Transform(cameraLookDir, newLookDir);
+	if (input->IsPressed(Input::Key_W))
 	{
-		entityVec += Vector3(-0.1f, 0.0f, 0.0f);
-		entity->SetPosition(entityVec);
+		// 앞으로 이동
+		cameraPos += cameraLookDir * deltaTime * moveSpeed;
 	}
 	if (input->IsPressed(Input::Key_S))
 	{
-		entityVec += Vector3(0.0f, 0.0f, -0.1f);
-		entity->SetPosition(entityVec);
+		// 뒤로 이동
+		cameraPos -= cameraLookDir * deltaTime * moveSpeed;
+	}
+	if (input->IsPressed(Input::Key_A))
+	{
+		// 왼쪽으로 이동
+		cameraPos -= rightVector * deltaTime * moveSpeed;
 	}
 	if (input->IsPressed(Input::Key_D))
 	{
-		entityVec += Vector3(0.1f, 0.0f, 0.0f);
-		entity->SetPosition(entityVec);
+		// 오른쪽으로 이동
+		cameraPos += rightVector * deltaTime * moveSpeed;
 	}
-	if (input->IsPressed(Input::Key_W))
-	{
-		entityVec += Vector3(0.0f, 0.0f, 0.1f);
-		entity->SetPosition(entityVec);
-	}
-	if (input->IsPressed(Input::Key_Space))
-	{
-		entityVec += Vector3(0.0f, 0.1f, 0.0f);
-		entity->SetPosition(entityVec);
-	}
-	if (input->IsPressed(Input::Key_LeftControl))
-	{
-		entityVec += Vector3(0.0f, -0.1f, 0.0f);
-		entity->SetPosition(entityVec);
-	}
+
+	XMStoreFloat3(&newPos, cameraPos);
+	camera->SetPosition(newPos);
+
+	XMStoreFloat3(&lookDir, cameraLookDir);
+	camera->SetLookDirection(lookDir);
+
+	Utility::Printf("%f %f\n", lookDir.x, lookDir.y);
 }

@@ -3,31 +3,44 @@
 
 Camera::Camera()
 {
-	position = Math::Vector3(0.0f, 0.0f, 0.0f);
-	lookAt = Math::Vector3(0.0f, 0.0f, 0.0f);
-	view = Math::Matrix::Identity();
-	projection = Math::Matrix::Identity();
+	position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	lookAt = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	view = XMMATRIX();
+	projection = XMMATRIX();
 	cameraVertexConstantBufferData.view = {};
 	cameraVertexConstantBufferData.projection = {};
 }
 
 void Camera::Update(float deltaTime)
 {
-	cameraVertexConstantBufferData.view = view.Transpose();
-	cameraVertexConstantBufferData.projection = projection.Transpose();
+	XMVECTOR eyePos = XMLoadFloat3(&position);
+	XMVECTOR eyeDir = XMLoadFloat3(&lookDirection);
+	XMVECTOR upDir = XMLoadFloat3(&upVector);
+	XMVECTOR newRightDir = XMVector3Cross(upDir, eyeDir);
+	XMStoreFloat3(&rightVector, newRightDir);
+
+	view = DirectX::XMMatrixLookToLH(eyePos, eyeDir, upDir);
+	projection = DirectX::XMMatrixPerspectiveFovLH(XMConvertToRadians(fieldOfView), aspectRatio, nearPlane, farPlane);
+
+	cameraVertexConstantBufferData.view = DirectX::XMMatrixTranspose(view);
+	cameraVertexConstantBufferData.projection = DirectX::XMMatrixTranspose(projection);
 }
 
-void Camera::SetPosition(Math::Vector3 position)
+void Camera::SetPosition(XMFLOAT3 position)
 { 
-	this->position = position; 
-	SetViewParameters(position, lookAt, upVector);
+	this->position = position;
 }
 
-void Camera::SetViewParameters(Math::Vector3 eyePosition, Math::Vector3 eyeDirection, Math::Vector3 up)
+void Camera::SetLookDirection(XMFLOAT3 direction)
+{
+	lookDirection = direction;
+	SetViewParameters(position, lookDirection, upVector);
+}
+
+void Camera::SetViewParameters(XMFLOAT3 eyePosition, XMFLOAT3 eyeDirection, XMFLOAT3 up)
 {
 	position = eyePosition;
 	lookDirection = eyeDirection;
-	view = Math::Matrix::LookToLH(eyePosition, eyeDirection, up);
 }
 
 void Camera::SetProjectionParameters(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
@@ -36,5 +49,4 @@ void Camera::SetProjectionParameters(float fieldOfView, float aspectRatio, float
 	this->aspectRatio = aspectRatio;
 	this->nearPlane = nearPlane;
 	this->farPlane = farPlane;
-	projection = Math::Matrix::PerspectiveFovLH(XMConvertToRadians(fieldOfView), aspectRatio, nearPlane, farPlane);
 }

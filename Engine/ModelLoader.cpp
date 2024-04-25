@@ -63,23 +63,48 @@ void ModelLoader::ProcessNode(const aiScene* scene, const std::shared_ptr<Model>
 void ModelLoader::ProcessMesh(const aiScene* scene, const std::shared_ptr<Model> model, aiMesh* mesh)
 {
 	auto newMesh = std::make_shared<Mesh>();
+
+	if (mesh->HasBones())
+	{
+		for (unsigned int i = 0; i < mesh->mNumBones; i++)
+		{
+			aiBone* bone = mesh->mBones[i];
+			std::string boneName(bone->mName.C_Str());
+
+			if (model->boneMap.find(boneName) == model->boneMap.end())
+			{
+				int newBoneIndex = model->boneMap.size();
+				BoneInfo boneInfo;
+				boneInfo.boneName = boneName;
+				// TODO: aiMatrix를 XMMATRIX로
+				// boneInfo.boneOffset = bone->mOffsetMatrix;
+				model->boneInfo.push_back(boneInfo);
+				model->boneMap[boneName] = newBoneIndex;
+			}
+		}
+	}
+
+	// TODO: 뼈대 없으면 뼈대 데이터 없는 Vertex 사용
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
-		vertex.position = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
-		vertex.normal = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
-
+		
+		if (mesh->HasPositions())
+		{
+			vertex.position = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+		}
+		if (mesh->HasNormals())
+		{
+			vertex.normal = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+		}
 		if (mesh->HasTextureCoords(0))
 		{
 			vertex.texcoord = { (float)mesh->mTextureCoords[0][i].x, (float)mesh->mTextureCoords[0][i].y };
 		}
-		else
+		if (mesh->HasTangentsAndBitangents())
 		{
-			vertex.texcoord = { 0.0f, 0.0f };
+			// TODO: tangent, bitangent...
 		}
-
-		// TODO: tangent, bitangent...
-
 		newMesh->vertices.push_back(vertex);
 	}
 
@@ -92,7 +117,40 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const std::shared_ptr<Model>
 		}
 	}
 
-	auto meshName = std::string(mesh->mName.C_Str());
+	for (unsigned int i = 0; i < mesh->mNumBones; i++)
+	{
+		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+		{
+			std::string boneName(mesh->mBones[i]->mName.data);
+			unsigned int boneIndex = model->boneMap[boneName];
+			unsigned int vertexIndex = mesh->mBones[i]->mWeights[j].mVertexId;
+			float weight = mesh->mBones[i]->mWeights[j].mWeight;
+
+			auto& vertex = newMesh->vertices[vertexIndex];
+			if (vertex.boneWeights.x == 0)
+			{
+				vertex.boneIndices.x = boneIndex;
+				vertex.boneWeights.x = weight;
+			}
+			else if (vertex.boneWeights.y == 0)
+			{
+				vertex.boneIndices.y = boneIndex;
+				vertex.boneWeights.y = weight;
+			}
+			else if (vertex.boneWeights.z == 0)
+			{
+				vertex.boneIndices.z = boneIndex;
+				vertex.boneWeights.z = weight;
+			}
+			else if (vertex.boneWeights.w == 0)
+			{
+				vertex.boneIndices.w = boneIndex;
+				vertex.boneWeights.w = weight;
+			}
+		}
+	}
+
+	auto meshName = std::string(mesh->mName.data);
 	model->AddMesh(meshName, newMesh);
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	ProcessMaterial(scene, model, material, meshName);
@@ -102,7 +160,7 @@ void ModelLoader::ProcessMaterial(const aiScene* scene, const std::shared_ptr<Mo
 {
 	auto newMaterial = std::make_shared<Material>();
 	model->meshMap[meshName]->material = newMaterial;
-	std::string materialName = material->GetName().C_Str();
+	std::string materialName(material->GetName().data);
 
 	aiColor4D diffuse;
 	if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse))
@@ -162,7 +220,7 @@ void ModelLoader::ProcessTexture(const aiScene* scene, const std::shared_ptr<Mod
 	{
 		aiString path;
 		material->GetTexture(type, 0, &path);
-		std::string texturePath(path.C_Str());
+		std::string texturePath(path.data);
 
 		int width = 0, height = 0, channels = 0;
 		auto newTexture = std::make_shared<Texture>();

@@ -592,7 +592,7 @@ void Graphics::Render(Engine::Game* game)
 	for (const auto& light : lights)
 	{
 		auto cameraPosition = mainCamera->GetPosition();
-		XMFLOAT3 cameraPositionFloat3 = { cameraPosition.x(), cameraPosition.y(), cameraPosition.z() };
+		XMFLOAT3 cameraPositionFloat3 = { cameraPosition.x, cameraPosition.y, cameraPosition.z };
 		light->SetCameraPosition(cameraPositionFloat3);
 
 		light->SetLightDirection({ 0.0f, 0.0f, 0.0f});
@@ -622,11 +622,11 @@ void Graphics::Render(Engine::Game* game)
 		auto rotation = entity->GetRotation();
 		auto scale = entity->GetScale();
 
-		entity->SetRotation({ rotation.x(), rotation.y() + 0.01f, rotation.z() });
+		entity->SetRotation({ rotation.x, rotation.y + 0.01f, rotation.z });
 
-		auto world = XMMatrixScaling(scale.x(), scale.y(), scale.z())
-			* XMMatrixRotationRollPitchYaw(rotation.x(), rotation.y(), rotation.z())
-			* XMMatrixTranslation(position.x(), position.y(), position.z());
+		auto world = XMMatrixScaling(scale.x, scale.y, scale.z)
+			* XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z)
+			* XMMatrixTranslation(position.x, position.y, position.z);
 
 		auto objectVertexConstantBuffer = entity->GetObjectVertexConstantBuffer();
 		auto objectVertexConstantBufferData = entity->GetObjectVertexConstantBufferData();

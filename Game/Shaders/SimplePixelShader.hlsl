@@ -47,5 +47,5 @@ float4 SimpleLight(PS_INPUT input)
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    return SimpleLight(input);
+    return diffuse.Sample(diffuseSampler, input.texCoord);
 }

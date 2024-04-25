@@ -110,6 +110,7 @@ namespace Engine
 		auto camera = std::make_shared<Camera>();
 		// 카메라가 메인 카메라 1개밖에 없다고 가정한다.
 		mainCamera = camera;
+		mainCamera->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		mainCamera->SetViewParameters({ 0.0f, 0.0f, -5.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f });
 		mainCamera->SetProjectionParameters(70.0f, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
 		return camera;
