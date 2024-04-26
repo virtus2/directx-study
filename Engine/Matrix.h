@@ -2,8 +2,17 @@
 #include "Vector.h"
 namespace Math
 {
-	class Matrix
+	// TODO: 크로스플랫폼 지원
+	using Matrix = DirectX::SimpleMath::Matrix;
+
+	
+	static Matrix MatrixFromLookAt(Vector3 eyePosition, Vector3 targetPosition, Vector3 up)
 	{
-		// TODO: XMMATRIX를 래핑하던지 아예 그냥 삭제할 예정.
-	};
+		return XMMatrixLookAtLH(eyePosition, targetPosition, up);
+	}
+
+	static Matrix Persepective(float fovY, float aspectRatio, float nearZ, float farZ)
+	{
+		return XMMatrixPerspectiveFovLH(fovY, aspectRatio, nearZ, farZ);
+	}
 }

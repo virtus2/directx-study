@@ -65,52 +65,44 @@ void MyGame::OnUpdate(float deltaTime)
 	auto input = GetInput();
 
 	// 1인칭 카메라 이동 테스트
-	float moveSpeed = 0.005f;
+	float moveSpeed = 0.05f * deltaTime;
 	float turnSpeed = 0.1f;
 	float mouseX = input->GetAnalogInput(Input::Mouse_X);
 	float mouseY = input->GetAnalogInput(Input::Mouse_Y);
 	float yaw = mouseX * DirectX::XM_2PI * turnSpeed * deltaTime;
 	float pitch = -mouseY * DirectX::XM_PIDIV2 * turnSpeed * deltaTime;
 
-	XMFLOAT3 pos = camera->GetPosition();
-	XMFLOAT3 lookDir = camera->GetLookDirection();
-	XMFLOAT3 up = camera->GetUpVector();
-	XMFLOAT3 right = camera->GetRightVector();
+	Vector3 camPos = camera->GetPosition();
+	Vector3 camTarget = camera->GetTargetPosition();
+	Vector3 camUp = camera->GetUpVector();
+	camUp.Normalize();
 
-	XMVECTOR cameraPos = XMLoadFloat3(&pos);
-	XMVECTOR cameraLookDir = XMLoadFloat3(&lookDir);
-	XMVECTOR upVector = XMLoadFloat3(&up);
-	XMVECTOR rightVector = XMLoadFloat3(&right);
+	Vector3 viewDir = camTarget - camPos;
+	viewDir.Normalize();
+	Vector3 rightDir = viewDir.Cross(camUp);
 
-	XMFLOAT3 newPos;
-	XMMATRIX newLookDir = XMMatrixRotationRollPitchYaw(pitch, yaw, 0);
-	cameraLookDir = XMVector3Transform(cameraLookDir, newLookDir);
-	if (input->IsPressed(Input::Key_W))
+	Vector3 movement(0.0f, 0.0f, 0.0f);
+	if (input->IsPressed(Input::DigitalInput::Key_W))
 	{
-		// 앞으로 이동
-		cameraPos += cameraLookDir * deltaTime * moveSpeed;
+		movement.z += 1.0f;
 	}
-	if (input->IsPressed(Input::Key_S))
+	if (input->IsPressed(Input::DigitalInput::Key_S))
 	{
-		// 뒤로 이동
-		cameraPos -= cameraLookDir * deltaTime * moveSpeed;
+		movement.z -= 1.0f;
 	}
-	if (input->IsPressed(Input::Key_A))
+	if (input->IsPressed(Input::DigitalInput::Key_A))
 	{
-		// 왼쪽으로 이동
-		cameraPos -= rightVector * deltaTime * moveSpeed;
+		movement.x += 1.0f;
 	}
-	if (input->IsPressed(Input::Key_D))
+	if (input->IsPressed(Input::DigitalInput::Key_D))
 	{
-		// 오른쪽으로 이동
-		cameraPos += rightVector * deltaTime * moveSpeed;
+		movement.x -= 1.0f;
 	}
 
-	XMStoreFloat3(&newPos, cameraPos);
-	camera->SetPosition(newPos);
+	camPos += movement.z * moveSpeed * viewDir;
+	camPos += movement.x * moveSpeed * rightDir;
+	camTarget = camPos + viewDir;
 
-	XMStoreFloat3(&lookDir, cameraLookDir);
-	camera->SetLookDirection(lookDir);
-
-	Utility::Printf("%f %f\n", lookDir.x, lookDir.y);
+	camera->SetPosition(camPos);
+	camera->SetTargetPosition(camTarget);
 }

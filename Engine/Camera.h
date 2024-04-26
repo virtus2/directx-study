@@ -2,6 +2,23 @@
 #include "Matrix.h"
 #include <d3d11.h>
 
+struct CameraData
+{
+	Math::Matrix viewMatrix;
+	// Math::Matrix prevViewMatrix;
+	Math::Matrix projMatrix;
+	// Math::Matrix viewProjMatrix;
+	// Math::Matrix invViewProjMatrix;
+
+	Math::Vector3 worldPosition = Math::Vector3(0.0f, 0.0f, 0.0f);
+	float focalLength;
+	Math::Vector3 targetPosition = Math::Vector3(0.0f, 0.0f, 0.0f);
+	float _padding1;
+	Math::Vector3 up = Math::Vector3(0.0f, 1.0f, 0.0f);
+	float _padding2;
+};
+static_assert(sizeof(CameraData) % (sizeof(Math::Vector4)) == 0, "CameraData size should be a multiple of 16");
+
 class Camera
 {
 	// 1인칭 시점 카메라
@@ -11,43 +28,38 @@ class Camera
 	// TODO: DirectX 벡터, 행렬 구조체 대신 래핑한 구조체 사용 (추후 다른 그래픽 API 대비...?)
 	struct CameraVertexConstantBuffer
 	{
-		XMMATRIX view;
-		XMMATRIX projection;
+		Math::Matrix view;
+		Math::Matrix projection;
 	};
 	static_assert((sizeof(CameraVertexConstantBuffer) % 16) == 0, "CameraVertexConstantBuffer size must be 16-byte aligned");
 
 public:
 	Camera();
-
+	
+	void BeginFrame(bool firstFrame);
 	void Update(float deltaTime);
 
-	void SetPosition(XMFLOAT3 position);
-	void SetLookDirection(XMFLOAT3 direction);
-	void SetViewParameters(XMFLOAT3 eyePosition, XMFLOAT3 eyeDirection, XMFLOAT3 up);
+	void SetPosition(Math::Vector3& position) { cameraData.worldPosition = position; }
+	void SetTargetPosition(Math::Vector3& position) { cameraData.targetPosition = position;	}
 	void SetProjectionParameters(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
 
-	XMFLOAT3 GetPosition() { return position; }
-	XMFLOAT3 GetLookAt() { return lookAt; }
-	XMFLOAT3 GetLookDirection() { return lookDirection; }
-	XMFLOAT3 GetUpVector() { return upVector; }
-	XMFLOAT3 GetRightVector() { return rightVector; }
+	const Math::Vector3& GetPosition() { return cameraData.worldPosition; }
+	const Math::Vector3& GetTargetPosition() { return cameraData.targetPosition; }
+	const Math::Vector3& GetUpVector() { return cameraData.up; }
 
 	// TODO: Graphics에서 Getter로 버퍼, 버퍼 데이터 얻어와서 갱신하는 것 vs Camera에서 직접 갱신하는 것 중 어떤 방법이 더 좋은지 고민
 	// 메인카메라만 갱신할것이니 전자가 나을수도 있음
-	CameraVertexConstantBuffer* GetCameraVertexConstantBufferData() { return &cameraVertexConstantBufferData; }
-	ID3D11Buffer* GetCameraVertexConstantBuffer() { return cameraVertexConstantBuffer.Get(); }
-	size_t GetCameraVertexConstantBufferSize() { return sizeof(CameraVertexConstantBuffer); }
+	const CameraData& GetCameraData() { CalculateCameraParameters(); return cameraData; }
+	size_t GetCameraDataSize() { return sizeof(cameraData); }
+	ID3D11Buffer* GetCameraDataBuffer() { return cameraDataBuffer.Get(); }
 
 private:
-	XMFLOAT3 upVector = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3 rightVector = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	void CalculateCameraParameters();
 
-	XMFLOAT3 position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3 lookAt = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3 lookDirection = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMMATRIX view = XMMATRIX();
-	XMMATRIX projection = XMMATRIX();
+	CameraData cameraData;
+	CameraData prevCameraData;
 
+	bool isDirty = false;
 	float fieldOfView;
 	float aspectRatio;
 	float nearPlane;
@@ -55,6 +67,5 @@ private:
 	float roll = 0.0f;
 	float yaw = 0.0f;
 
-	CameraVertexConstantBuffer cameraVertexConstantBufferData;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> cameraVertexConstantBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> cameraDataBuffer = nullptr;
 };

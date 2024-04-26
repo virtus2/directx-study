@@ -1,7 +1,14 @@
 cbuffer FrameVertexConstantBuffer : register(b0)
 {
-    matrix view;
-    matrix projection;
+    Matrix viewMatrix;
+    Matrix projMatrix;
+
+    float3 worldPosition;
+    float focalLength;
+    float3 targetPosition;
+    float _padding1;
+    float3 up;
+    float _padding2;
 };
 
 cbuffer ObjectVertexConstantBuffer : register(b1)
@@ -31,8 +38,8 @@ VS_OUTPUT main(VS_INPUT input)
     float4 pos = float4(input.pos, 1.0f);
     pos = mul(pos, world);
     output.posWorld = pos.xyz;
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
+    pos = mul(pos, viewMatrix);
+    pos = mul(pos, projMatrix);
     output.pos = pos;
     
     output.normal = mul(input.normal, (float3x3)world);

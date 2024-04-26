@@ -8,34 +8,8 @@ using namespace DirectX;
 
 namespace Math
 {
-	// TODO: XMFLOAT를 래핑하던지 아예 그냥 삭제할 예정.
-	class Vector4;
-
-	class Vector3
-	{
-	public:
-
-
-	protected:
-		DirectX::SimpleMath::Vector3 vec;
-	};
-
-
-	class Vector4
-	{
-	public:
-
-
-	protected:
-		DirectX::SimpleMath::Vector4 vec;
-	};
-
-	class Vector2
-	{
-	public:
-
-
-	protected:
-		DirectX::SimpleMath::Vector2 vec;
-	};
+	// TODO: 크로스플랫폼 지원
+	using Vector2 = DirectX::SimpleMath::Vector2;
+	using Vector3 = DirectX::SimpleMath::Vector3;
+	using Vector4 = DirectX::SimpleMath::Vector4;
 }

@@ -567,20 +567,18 @@ void Graphics::Render(Engine::Game* game)
 	if (mainCamera)
 	{
 		// 카메라 관련된 상수 버퍼를 갱신합니다.
-		auto cameraVertexConstantBuffer = mainCamera->GetCameraVertexConstantBuffer();
-		auto cameraVertexConstantBufferData = mainCamera->GetCameraVertexConstantBufferData();
-		auto cameraVertexConstantBufferSize = mainCamera->GetCameraVertexConstantBufferSize();
+		auto cameraDataBuffer = mainCamera->GetCameraDataBuffer();
+		auto cameraData = mainCamera->GetCameraData();
 		// TODO: 굳이 분기 안타고 미리 만들어놓는게 나을지도... 메인카메라 변경될경우 버퍼 만들어주고 해제하면 될거같음
-		if (cameraVertexConstantBuffer)
+		if (cameraDataBuffer)
 		{
-			UpdateConstantBuffer(cameraVertexConstantBufferData, cameraVertexConstantBufferSize, cameraVertexConstantBuffer);
+			UpdateConstantBuffer(&cameraData, sizeof(cameraData), cameraDataBuffer);
 		}
 		else
 		{
-			CreateConstantBuffer(cameraVertexConstantBufferData, cameraVertexConstantBufferSize, &cameraVertexConstantBuffer);
+			CreateConstantBuffer(&cameraData, sizeof(cameraData), &cameraDataBuffer);
 		}
-		context->VSSetConstantBuffers(0, 1, &cameraVertexConstantBuffer);
-		context->PSSetConstantBuffers(0, 1, &cameraVertexConstantBuffer);
+		context->VSSetConstantBuffers(0, 1, &cameraDataBuffer);
 	}
 	else
 	{
@@ -621,8 +619,6 @@ void Graphics::Render(Engine::Game* game)
 		auto position = entity->GetPosition();
 		auto rotation = entity->GetRotation();
 		auto scale = entity->GetScale();
-
-		entity->SetRotation({ rotation.x, rotation.y + 0.01f, rotation.z });
 
 		auto world = XMMatrixScaling(scale.x, scale.y, scale.z)
 			* XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z)
