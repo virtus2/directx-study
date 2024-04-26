@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Matrix.h"
+#include "Quaternion.h"
 #include <d3d11.h>
 
 struct CameraData
@@ -41,6 +42,8 @@ public:
 
 	void SetPosition(Math::Vector3& position) { cameraData.worldPosition = position; }
 	void SetTargetPosition(Math::Vector3& position) { cameraData.targetPosition = position;	}
+	void SetUpVector(Math::Vector3& up) { cameraData.up = up; }
+
 	void SetProjectionParameters(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
 
 	const Math::Vector3& GetPosition() { return cameraData.worldPosition; }

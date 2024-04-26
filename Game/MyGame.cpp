@@ -65,7 +65,7 @@ void MyGame::OnUpdate(float deltaTime)
 	auto input = GetInput();
 
 	// 1인칭 카메라 이동 테스트
-	float moveSpeed = 0.05f * deltaTime;
+	float moveSpeed = 0.01f * deltaTime;
 	float turnSpeed = 0.1f;
 	float mouseX = input->GetAnalogInput(Input::Mouse_X);
 	float mouseY = input->GetAnalogInput(Input::Mouse_Y);
@@ -98,6 +98,24 @@ void MyGame::OnUpdate(float deltaTime)
 	{
 		movement.x -= 1.0f;
 	}
+
+	Vector3 xAxis(-1.0f, 0.0f, 0.0f);
+	Vector3 yAxis(0.0f, 1.0f, 0.0f);
+
+	// Rotate around X axis
+	Quaternion quatY = Quaternion::CreateFromAxisAngle(yAxis, mouseX);
+	Matrix rotY = Matrix::CreateFromQuaternion(quatY);
+	viewDir = Vector3::Transform(viewDir, rotY);
+	camUp = Vector3::Transform(camUp, rotY);
+
+	// Rotate around Y axis
+	Quaternion quatX = Quaternion::CreateFromAxisAngle(xAxis, mouseY);
+	Matrix rotX = Matrix::CreateFromQuaternion(quatX);
+	viewDir = Vector3::Transform(viewDir, rotX);
+
+	camTarget = camPos + viewDir;
+	camera->SetTargetPosition(camTarget);
+	camera->SetUpVector(camUp);
 
 	camPos += movement.z * moveSpeed * viewDir;
 	camPos += movement.x * moveSpeed * rightDir;

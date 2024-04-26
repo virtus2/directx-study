@@ -2,10 +2,9 @@
 #include "Vector.h"
 namespace Math
 {
-	// TODO: 크로스플랫폼 지원
+	// TODO: 크로스플랫폼 지원하는 매트릭스
 	using Matrix = DirectX::SimpleMath::Matrix;
 
-	
 	static Matrix MatrixFromLookAt(Vector3 eyePosition, Vector3 targetPosition, Vector3 up)
 	{
 		return XMMatrixLookAtLH(eyePosition, targetPosition, up);
