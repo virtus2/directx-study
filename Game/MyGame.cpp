@@ -66,11 +66,8 @@ void MyGame::OnUpdate(float deltaTime)
 
 	// 1인칭 카메라 이동 테스트
 	float moveSpeed = 0.01f * deltaTime;
-	float turnSpeed = 0.1f;
 	float mouseX = input->GetAnalogInput(Input::Mouse_X);
 	float mouseY = input->GetAnalogInput(Input::Mouse_Y);
-	float yaw = mouseX * DirectX::XM_2PI * turnSpeed * deltaTime;
-	float pitch = -mouseY * DirectX::XM_PIDIV2 * turnSpeed * deltaTime;
 
 	Vector3 camPos = camera->GetPosition();
 	Vector3 camTarget = camera->GetTargetPosition();
@@ -99,19 +96,24 @@ void MyGame::OnUpdate(float deltaTime)
 		movement.x -= 1.0f;
 	}
 
-	Vector3 xAxis(-1.0f, 0.0f, 0.0f);
-	Vector3 yAxis(0.0f, 1.0f, 0.0f);
+	if (input->IsPressed(Input::DigitalInput::Mouse_1)) 
+	{
+		Vector3 xAxis(1.0f, 0.0f, 0.0f);
+		Vector3 yAxis(0.0f, 1.0f, 0.0f);
 
-	// Rotate around X axis
-	Quaternion quatY = Quaternion::CreateFromAxisAngle(yAxis, mouseX);
-	Matrix rotY = Matrix::CreateFromQuaternion(quatY);
-	viewDir = Vector3::Transform(viewDir, rotY);
-	camUp = Vector3::Transform(camUp, rotY);
+		float sensitivity = 10.0f;
+		float yaw = mouseX * DirectX::XM_2PI;
+		float pitch = mouseY * DirectX::XM_2PI;
+		// Rotate around X axis
+		Matrix rotY = Matrix::CreateFromAxisAngle(rightDir, sensitivity * XMConvertToRadians(pitch));
+		viewDir = Vector3::TransformNormal(viewDir, rotY);
+		camUp = Vector3::TransformNormal(camUp, rotY);
 
-	// Rotate around Y axis
-	Quaternion quatX = Quaternion::CreateFromAxisAngle(xAxis, mouseY);
-	Matrix rotX = Matrix::CreateFromQuaternion(quatX);
-	viewDir = Vector3::Transform(viewDir, rotX);
+		// Rotate around Y axis
+		Matrix rotX = Matrix::CreateRotationY(sensitivity * XMConvertToRadians(yaw));
+		viewDir = Vector3::Transform(viewDir, rotX);
+		camUp = Vector3::TransformNormal(camUp, rotX);
+	}
 
 	camTarget = camPos + viewDir;
 	camera->SetTargetPosition(camTarget);
