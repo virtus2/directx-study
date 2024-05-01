@@ -45,5 +45,4 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> objectVertexConstantBuffer = nullptr;
 
 	std::shared_ptr<Model> model;
-
 };

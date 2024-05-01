@@ -73,7 +73,7 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const std::shared_ptr<Model>
 
 			if (model->boneMap.find(boneName) == model->boneMap.end())
 			{
-				int newBoneIndex = model->boneMap.size();
+				size_t newBoneIndex = model->boneMap.size();
 				BoneInfo boneInfo;
 				boneInfo.boneName = boneName;
 				// TODO: aiMatrix를 XMMATRIX로

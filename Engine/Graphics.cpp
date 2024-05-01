@@ -692,8 +692,8 @@ void Graphics::DrawMesh(Mesh* mesh)
 void Graphics::DrawModel(Model* model)
 {
 	auto meshes = model->GetMeshes();
-	int count = meshes.size();
-	for (int i = 0; i < count; i++)
+	size_t count = meshes.size();
+	for (size_t i = 0; i < count; i++)
 	{
 		auto mesh = meshes[i];
 		UINT stride = sizeof(Vertex);

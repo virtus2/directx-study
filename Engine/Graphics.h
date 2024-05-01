@@ -16,7 +16,7 @@ class Shader;
 class Vertex;
 class Material;
 class Camera;
-class aiTexture;
+struct aiTexture;
 
 class Graphics
 {

@@ -20,7 +20,7 @@ public:
 	void AddMesh(std::string& meshName, std::shared_ptr<Mesh> mesh);
 
 	inline std::vector<std::shared_ptr<Mesh>>& GetMeshes() { return meshList; }
-	inline int GetMeshCount() { return meshList.size(); }
+	inline size_t GetMeshCount() { return meshList.size(); }
 
 private:
 	std::string filePath;
